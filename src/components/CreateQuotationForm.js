@@ -1,0 +1,219 @@
+import React from "react";
+
+const CreateQuotationForm = ({
+  quotationData,
+  setQuotationData,
+  handleChange,
+}) => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      {/* Title */}
+      <div>
+        <label className="block mb-1 text-gray-600">Title</label>
+        <input
+          type="text"
+          name="title"
+          placeholder="Enter title"
+          value={quotationData.title}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded"
+          required
+        />
+      </div>
+
+      {/* Client */}
+      <div>
+        <label className="block mb-1 text-gray-600">Client</label>
+        <input
+          type="text"
+          name="client"
+          placeholder="Enter client name"
+          value={quotationData.client}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded"
+          required
+        />
+      </div>
+
+      {/* Sale Person */}
+      <div>
+        <label className="block mb-1 text-gray-600">Sale Person</label>
+        <input
+          type="text"
+          name="salePerson"
+          placeholder="Enter sale person name"
+          value={quotationData.salePerson}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded"
+          required
+        />
+      </div>
+
+      {/* Document Date */}
+      <div>
+        <label className="block mb-1 text-gray-600">Document Date</label>
+        <input
+          type="date"
+          name="documentDate"
+          value={quotationData.documentDate}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded"
+          required
+        />
+      </div>
+
+      {/* Product Name */}
+      <div>
+        <label className="block mb-1 text-gray-600">Product Name</label>
+        <input
+          type="text"
+          name="productName"
+          placeholder="Enter product name"
+          value={quotationData.productName}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded"
+          required
+        />
+      </div>
+
+      {/* Project Name */}
+      <div>
+        <label className="block mb-1 text-gray-600">Project Name</label>
+        <input
+          type="text"
+          name="projectName"
+          placeholder="Enter project name"
+          value={quotationData.projectName}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded"
+          required
+        />
+      </div>
+
+      {/* Period */}
+      <div>
+        <label className="block mb-1 text-gray-600">Period</label>
+        <input
+          type="text"
+          name="period"
+          placeholder="e.g., NOV 2024 - DEC 2024"
+          value={quotationData.period}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded"
+          required
+        />
+      </div>
+
+      {/* Start Date and End Date */}
+      <div className="md:col-span-2 flex gap-4">
+        <div className="flex-1">
+          <label className="block mb-1 text-gray-600">Start Date</label>
+          <input
+            type="date"
+            name="startDate"
+            value={quotationData.startDate}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded"
+            required
+          />
+        </div>
+        <div className="flex-1">
+          <label className="block mb-1 text-gray-600">End Date</label>
+          <input
+            type="date"
+            name="endDate"
+            value={quotationData.endDate}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded"
+            required
+          />
+        </div>
+      </div>
+
+      {/* Type and Fee */}
+      <div className="md:col-span-2 flex gap-4">
+        <div className="flex-1">
+          <label className="block mb-1 text-gray-600">Type</label>
+          <select
+            name="type"
+            value={quotationData.type}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded"
+            required
+          >
+            <option value="M">M</option>
+            <option value="S">S</option>
+            <option value="W">W</option>
+          </select>
+        </div>
+        <div className="flex-1">
+          <label className="block mb-1 text-gray-600">Fee</label>
+          <div className="relative">
+            <input
+              type="number"
+              name="fee"
+              placeholder="Enter fee"
+              value={quotationData.fee}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value);
+                setQuotationData({
+                  ...quotationData,
+                  fee: value < 0 ? 0 : value, // ห้ามค่าติดลบ
+                });
+              }}
+              className="w-full px-4 py-2 border rounded pr-10"
+              required
+            />
+            <span className="absolute inset-y-0 right-3 flex items-center text-gray-500">
+              %
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Create By and Proposed By */}
+      <div className="md:col-span-2 flex gap-4">
+        <div className="flex-1">
+          <label className="block mb-1 text-gray-600">Create By</label>
+          <input
+            type="text"
+            name="createBy"
+            placeholder="Enter creator name"
+            value={quotationData.createBy}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded"
+            required
+          />
+        </div>
+        <div className="flex-1">
+          <label className="block mb-1 text-gray-600">Proposed By</label>
+          <input
+            type="text"
+            name="proposedBy"
+            placeholder="Enter proposer name"
+            value={quotationData.proposedBy}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded"
+            required
+          />
+        </div>
+      </div>
+
+      {/* Discount */}
+      <div>
+        <label className="block mb-1 text-gray-600">Discount</label>
+        <input
+          type="number"
+          name="discount"
+          placeholder="Enter discount"
+          value={quotationData.discount}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border rounded"
+          required
+        />
+      </div>
+    </div>
+  );
+};
+
+export default CreateQuotationForm;
