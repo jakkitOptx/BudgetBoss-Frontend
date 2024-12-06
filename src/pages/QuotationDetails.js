@@ -104,6 +104,18 @@ const QuotationDetails = () => {
               {quotation.approvalStatus}
             </span>
           </p>
+          {quotation.approvalStatus === "Canceled" && (
+            <>
+              <p>
+                <span className="font-bold">Reason:</span>{" "}
+                {quotation.reason || "N/A"}
+              </p>
+              <p>
+                <span className="font-bold">Canceled By:</span>{" "}
+                {quotation.canceledBy || "N/A"}
+              </p>
+            </>
+          )}
         </div>
       </div>
 
