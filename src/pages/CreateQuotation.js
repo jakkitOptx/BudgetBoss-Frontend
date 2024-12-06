@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CreateQuotationForm from "../components/CreateQuotationForm";
@@ -23,14 +23,25 @@ const CreateQuotation = () => {
     fee: 0,
     items: [],
     discount: 0,
+    createdByUser: "", // เพิ่ม field นี้
   });
-  
 
   const [item, setItem] = useState({
     description: "",
     unit: 1,
     unitPrice: "",
   });
+
+  // ดึงข้อมูล user จาก localStorage
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user?.username) {
+      setQuotationData((prev) => ({
+        ...prev,
+        createdByUser: user.username, // กำหนดค่า createdByUser
+      }));
+    }
+  }, []);
 
   const handleItemChange = (field, value) => {
     setItem((prev) => ({ ...prev, [field]: value }));
@@ -57,8 +68,11 @@ const CreateQuotation = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setQuotationData((prev) => ({ ...prev, [name]: value }));
-  };
+    setQuotationData((prev) => ({
+      ...prev,
+      [name]: name === "discount" || name === "fee" ? parseFloat(value) || 0 : value,
+    }));
+  };  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -77,6 +91,14 @@ const CreateQuotation = () => {
     }
   };
 
+  const updateItem = (index, updatedItem) => {
+    setQuotationData((prev) => ({
+      ...prev,
+      items: prev.items.map((itm, i) => (i === index ? updatedItem : itm)),
+    }));
+  };
+  
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Create Quotation</h1>
@@ -92,6 +114,7 @@ const CreateQuotation = () => {
           handleItemChange={handleItemChange}
           addItem={addItem}
           removeItem={removeItem}
+          updateItem={updateItem}
         />
         <div className="flex justify-end mt-4">
           <button
