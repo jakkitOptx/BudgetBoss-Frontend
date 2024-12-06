@@ -1,3 +1,4 @@
+// Header.js
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
@@ -15,7 +16,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white shadow p-4 flex justify-between items-center">
+    <header className="bg-white shadow p-4 flex justify-between items-center sticky top-0 z-10">
       <h1 className="text-xl font-bold">Financial Management System</h1>
 
       <div className="flex items-center gap-4">

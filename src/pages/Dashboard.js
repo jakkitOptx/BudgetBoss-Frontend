@@ -14,16 +14,21 @@ const Dashboard = () => {
     const fetchQuotations = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/quotations", {
-          headers: {
-            Authorization: `Bearer ${token}`, // ส่ง Token ไปใน Header
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:5000/api/quotations",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // ส่ง Token ไปใน Header
+            },
+          }
+        );
 
         const data = response.data;
 
         // แยกสถานะที่ยังไม่อนุมัติ
-        const pending = data.filter((q) => q.approvalStatus === "Pending").length;
+        const pending = data.filter(
+          (q) => q.approvalStatus === "Pending"
+        ).length;
 
         setQuotations(data.slice(0, 5)); // แสดงเฉพาะ 5 รายการล่าสุด
         setPendingCount(pending);
@@ -49,12 +54,18 @@ const Dashboard = () => {
       {/* แสดงข้อมูลภาพรวม */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div className="bg-blue-100 p-4 rounded shadow">
-          <h2 className="text-lg font-semibold text-blue-800">Pending Approvals</h2>
+          <h2 className="text-lg font-semibold text-blue-800">
+            Pending Approvals
+          </h2>
           <p className="text-2xl font-bold text-blue-900">{pendingCount}</p>
         </div>
         <div className="bg-green-100 p-4 rounded shadow">
-          <h2 className="text-lg font-semibold text-green-800">Total Quotations</h2>
-          <p className="text-2xl font-bold text-green-900">{quotations.length}</p>
+          <h2 className="text-lg font-semibold text-green-800">
+            Total Quotations
+          </h2>
+          <p className="text-2xl font-bold text-green-900">
+            {quotations.length}
+          </p>
         </div>
       </div>
 
@@ -80,7 +91,22 @@ const Dashboard = () => {
                   <td className="py-2">{q.runNumber}</td>
                   <td className="py-2">{q.type}</td>
                   <td className="py-2">{q.title}</td>
-                  <td className="py-2">{q.approvalStatus}</td>
+                  <td className="py-2">
+                    <span
+                      className={`px-2 py-1 rounded ${
+                        q.approvalStatus === "Approved"
+                          ? "bg-green-100 text-green-700"
+                          : q.approvalStatus === "Pending"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : q.approvalStatus === "Rejected" ||
+                            q.approvalStatus === "Canceled"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      {q.approvalStatus}
+                    </span>
+                  </td>
                   <td className="py-2">
                     {q.netAmount
                       ? q.netAmount.toLocaleString("th-TH", {

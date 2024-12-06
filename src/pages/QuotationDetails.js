@@ -93,7 +93,12 @@ const QuotationDetails = () => {
               className={`px-2 py-1 rounded ${
                 quotation.approvalStatus === "Approved"
                   ? "bg-green-100 text-green-700"
-                  : "bg-yellow-100 text-yellow-700"
+                  : quotation.approvalStatus === "Pending"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : quotation.approvalStatus === "Rejected" ||
+                    quotation.approvalStatus === "Canceled"
+                  ? "bg-red-100 text-red-700"
+                  : "bg-gray-100 text-gray-700"
               }`}
             >
               {quotation.approvalStatus}
@@ -140,6 +145,33 @@ const QuotationDetails = () => {
       <div className="bg-gray-50 shadow rounded p-6 mt-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Summary</h2>
         <div className="flex flex-col space-y-2">
+          <p className="flex justify-between">
+            <span className="font-bold">Total Before Fee:</span>
+            <span>
+              {quotation.totalBeforeFee.toLocaleString("th-TH", {
+                style: "currency",
+                currency: "THB",
+              })}
+            </span>
+          </p>
+          <p className="flex justify-between">
+            <span className="font-bold">Fee ({quotation.fee}%):</span>
+            <span>
+              {quotation.calFee.toLocaleString("th-TH", {
+                style: "currency",
+                currency: "THB",
+              })}
+            </span>
+          </p>
+          <p className="flex justify-between">
+            <span className="font-bold">Total:</span>
+            <span>
+              {quotation.total.toLocaleString("th-TH", {
+                style: "currency",
+                currency: "THB",
+              })}
+            </span>
+          </p>
           <p className="flex justify-between">
             <span className="font-bold">Discount:</span>
             <span>

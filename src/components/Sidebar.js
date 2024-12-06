@@ -1,9 +1,10 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+// Sidebar.js
+import React from "react";
+import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   return (
-    <aside className="w-64 bg-gray-800 text-white h-screen">
+    <aside className="w-64 bg-gray-800 text-white h-screen fixed top-0 left-0">
       <nav className="p-4">
         <ul>
           <li className="mb-4">
