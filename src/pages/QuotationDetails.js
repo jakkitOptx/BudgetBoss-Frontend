@@ -116,6 +116,14 @@ const QuotationDetails = () => {
               </p>
             </>
           )}
+          <p>
+            <span className="font-bold">Credit Term:</span>{" "}
+            {quotation.CreditTerm ? `${quotation.CreditTerm} days` : "N/A"}
+          </p>
+          <p>
+            <span className="font-bold">Remark:</span>{" "}
+            {quotation.remark || "N/A"}
+          </p>
         </div>
       </div>
 

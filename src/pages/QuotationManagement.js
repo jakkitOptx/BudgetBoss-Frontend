@@ -52,9 +52,14 @@ const QuotationManagement = () => {
   };
 
   // กรองรายการตามคำค้นหา
-  const filteredQuotations = quotations.filter((q) =>
-    q.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredQuotations = quotations.filter((q) => {
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    return (
+      q.title.toLowerCase().includes(lowerCaseSearchTerm) ||
+      (q.client && q.client.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      q._id.toLowerCase().includes(lowerCaseSearchTerm)
+    );
+  });
 
   return (
     <div className="p-6">
@@ -64,7 +69,7 @@ const QuotationManagement = () => {
       <div className="mb-4 flex justify-between items-center">
         <input
           type="text"
-          placeholder="Search by title..."
+          placeholder="Search by title, client, or ID..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full md:w-1/3 px-4 py-2 border rounded"
@@ -88,6 +93,7 @@ const QuotationManagement = () => {
               <tr>
                 <th className="border-b py-2">Title</th>
                 <th className="border-b py-2">Client</th>
+                <th className="border-b py-2">Create Date</th>
                 <th className="border-b py-2">Amount (THB)</th>
                 <th className="border-b py-2">Status</th>
                 <th className="border-b py-2">Actions</th>
@@ -98,6 +104,15 @@ const QuotationManagement = () => {
                 <tr key={q._id} className="hover:bg-gray-50">
                   <td className="py-2">{q.title}</td>
                   <td className="py-2">{q.client || "N/A"}</td>
+                  <td className="py-2">
+                    {q.documentDate
+                      ? new Date(q.documentDate).toLocaleDateString("th-TH", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "-"}
+                  </td>
                   <td className="py-2">
                     {q.netAmount
                       ? q.netAmount.toLocaleString("th-TH", {
@@ -115,7 +130,7 @@ const QuotationManagement = () => {
                           ? "bg-yellow-100 text-yellow-700"
                           : q.approvalStatus === "Rejected" ||
                             q.approvalStatus === "Canceled"
-                          ? "bg-red-100 text-red-700" 
+                          ? "bg-red-100 text-red-700"
                           : "bg-gray-100 text-gray-700"
                       }`}
                     >

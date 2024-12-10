@@ -170,7 +170,6 @@ const CreateQuotationForm = ({
           </div>
         </div>
       </div>
-
       {/* Create By and Proposed By */}
       <div className="md:col-span-2 flex gap-4">
         <div className="flex-1">
@@ -198,20 +197,49 @@ const CreateQuotationForm = ({
           />
         </div>
       </div>
+      {/* Discount, CreditTerm, and Remark */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Discount */}
+        <div>
+          <label className="block mb-1 text-gray-600">Discount</label>
+          <input
+            type="number"
+            name="discount"
+            placeholder="Enter discount"
+            value={quotationData.discount || ""}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded"
+            required
+          />
+        </div>
 
-      {/* Discount */}
-      <div>
-        <label className="block mb-1 text-gray-600">Discount</label>
-        <input
-          type="number"
-          name="discount"
-          placeholder="Enter discount"
-          value={quotationData.discount}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border rounded"
-          required
-        />
+        {/* CreditTerm */}
+        <div>
+          <label className="block mb-1 text-gray-600">Credit Term</label>
+          <input
+            type="number"
+            name="CreditTerm"
+            placeholder="Enter credit term (days)"
+            value={quotationData.CreditTerm || ""}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded"
+            required
+          />
+        </div>
+
+        {/* Remark */}
+        <div className="md:col-span-2">
+          <label className="block mb-1 text-gray-600">Remark</label>
+          <textarea
+            name="remark"
+            placeholder="Enter remarks"
+            value={quotationData.remark || ""}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded h-24"
+          />
+        </div>
       </div>
+      
     </div>
   );
 };

@@ -81,6 +81,8 @@ const Dashboard = () => {
                 <th className="border-b py-2">Run Number</th>
                 <th className="border-b py-2">Type</th>
                 <th className="border-b py-2">Title</th>
+                <th className="border-b py-2">Client</th>
+                <th className="border-b py-2">Create Date</th>
                 <th className="border-b py-2">Status</th>
                 <th className="border-b py-2">Amount (THB)</th>
               </tr>
@@ -91,6 +93,16 @@ const Dashboard = () => {
                   <td className="py-2">{q.runNumber}</td>
                   <td className="py-2">{q.type}</td>
                   <td className="py-2">{q.title}</td>
+                  <td className="py-2">{q.client || "N/A"}</td>
+                  <td className="py-2">
+                    {q.documentDate
+                      ? new Date(q.documentDate).toLocaleDateString("th-TH", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "-"}
+                  </td>
                   <td className="py-2">
                     <span
                       className={`px-2 py-1 rounded ${
