@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CreateQuotationForm from "../components/CreateQuotationForm";
 import ItemsForm from "../components/ItemsForm";
+import QuotationPreview from "../components/QuotationPreview";
+import { pdf } from "@react-pdf/renderer"; // สำหรับการสร้าง Blob
 
 const CreateQuotation = () => {
   const navigate = useNavigate();
@@ -23,7 +25,9 @@ const CreateQuotation = () => {
     fee: 0,
     items: [],
     discount: 0,
-    createdByUser: "", // เพิ่ม field นี้
+    createdByUser: "",
+    totalBeforeFee: 0,
+    netAmount: 0,
   });
 
   const [item, setItem] = useState({
@@ -38,10 +42,21 @@ const CreateQuotation = () => {
     if (user?.username) {
       setQuotationData((prev) => ({
         ...prev,
-        createdByUser: user.username, // กำหนดค่า createdByUser
+        createdByUser: user.username,
       }));
     }
   }, []);
+
+  // คำนวณ Total และ Net Amount
+  useEffect(() => {
+    const totalBeforeFee = quotationData.items.reduce(
+      (sum, itm) => sum + itm.unit * itm.unitPrice,
+      0
+    );
+    const netAmount =
+      totalBeforeFee - quotationData.discount + totalBeforeFee * (quotationData.fee / 100);
+    setQuotationData((prev) => ({ ...prev, totalBeforeFee, netAmount }));
+  }, [quotationData.items, quotationData.discount, quotationData.fee]);
 
   const handleItemChange = (field, value) => {
     setItem((prev) => ({ ...prev, [field]: value }));
@@ -66,13 +81,21 @@ const CreateQuotation = () => {
     }));
   };
 
+  const updateItem = (index, updatedItem) => {
+    setQuotationData((prev) => ({
+      ...prev,
+      items: prev.items.map((itm, i) => (i === index ? updatedItem : itm)),
+    }));
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setQuotationData((prev) => ({
       ...prev,
-      [name]: name === "discount" || name === "fee" ? parseFloat(value) || 0 : value,
+      [name]:
+        name === "discount" || name === "fee" ? parseFloat(value) || 0 : value,
     }));
-  };  
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -91,13 +114,14 @@ const CreateQuotation = () => {
     }
   };
 
-  const updateItem = (index, updatedItem) => {
-    setQuotationData((prev) => ({
-      ...prev,
-      items: prev.items.map((itm, i) => (i === index ? updatedItem : itm)),
-    }));
+  const handlePreview = async () => {
+    const blob = await pdf(<QuotationPreview quotationData={quotationData} />).toBlob();
+    const url = URL.createObjectURL(blob);
+    const newTab = window.open();
+    if (newTab) {
+      newTab.document.write(`<iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>`);
+    }
   };
-  
 
   return (
     <div className="p-6">
@@ -116,7 +140,14 @@ const CreateQuotation = () => {
           removeItem={removeItem}
           updateItem={updateItem}
         />
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end mt-4 space-x-4">
+          <button
+            type="button"
+            onClick={handlePreview}
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          >
+            Preview
+          </button>
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
