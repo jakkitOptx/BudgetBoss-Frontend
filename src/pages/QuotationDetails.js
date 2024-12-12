@@ -145,12 +145,21 @@ const QuotationDetails = () => {
                 <tr key={index} className="hover:bg-gray-50">
                   <td className="py-2">{item.description}</td>
                   <td className="py-2">{item.unit}</td>
-                  <td className="py-2">{item.unitPrice || "-"}</td>
                   <td className="py-2">
-                    {item.amount.toLocaleString("th-TH", {
-                      style: "currency",
-                      currency: "THB",
-                    })}
+                    {item.unitPrice
+                      ? parseFloat(item.unitPrice).toLocaleString("th-TH", {
+                          style: "currency",
+                          currency: "THB",
+                        })
+                      : "-"}
+                  </td>
+                  <td className="py-2">
+                    {item.amount
+                      ? item.amount.toLocaleString("th-TH", {
+                          style: "currency",
+                          currency: "THB",
+                        })
+                      : "-"}
                   </td>
                 </tr>
               ))}
@@ -222,10 +231,12 @@ const QuotationDetails = () => {
           <p className="flex justify-between">
             <span className="font-bold">Net Amount:</span>
             <span>
-              {quotation.netAmount.toLocaleString("th-TH", {
-                style: "currency",
-                currency: "THB",
-              })}
+              {quotation.netAmount
+                ? quotation.netAmount.toLocaleString("th-TH", {
+                    style: "currency",
+                    currency: "THB",
+                  })
+                : "-"}
             </span>
           </p>
         </div>

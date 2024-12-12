@@ -1,45 +1,153 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import CreateQuotationForm from "../components/CreateQuotationForm";
+import ItemsForm from "../components/ItemsForm";
+import QuotationPreview from "../components/QuotationPreview";
+import { pdf } from "@react-pdf/renderer"; // สำหรับการสร้าง Blob
 
 const EditQuotation = () => {
-  const { id } = useParams(); // ดึง `id` จาก URL Parameter
-  const navigate = useNavigate(); // ใช้สำหรับ Redirect
-  const [quotation, setQuotation] = useState(null); // เก็บข้อมูล Quotation
-  const [loading, setLoading] = useState(true); // สถานะ Loading
-  const [error, setError] = useState(""); // ข้อผิดพลาด
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  // ดึงข้อมูล Quotation จาก API
+  const [quotationData, setQuotationData] = useState({
+    title: "",
+    client: "",
+    salePerson: "",
+    documentDate: "",
+    productName: "",
+    projectName: "",
+    period: "",
+    startDate: "",
+    endDate: "",
+    createBy: "",
+    proposedBy: "",
+    type: "M",
+    fee: 0,
+    items: [],
+    discount: 0,
+    createdByUser: "",
+    totalBeforeFee: 0,
+    netAmount: 0,
+  });
+
+  const [item, setItem] = useState({
+    description: "",
+    unit: 1,
+    unitPrice: "",
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  // โหลดข้อมูล Quotation จาก API
   useEffect(() => {
     const fetchQuotation = async () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(`http://localhost:5000/api/quotations/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-        setQuotation(response.data);
+  
+        const data = response.data;
+  
+        // ตรวจสอบค่าที่ได้จาก API และกำหนดค่าเริ่มต้น
+        setQuotationData({
+          ...data,
+          netAmount: data.netAmount || 0, // ตรวจสอบและกำหนดค่า Default
+          totalBeforeFee: data.totalBeforeFee || 0,
+          items: data.items || [],
+        });
         setLoading(false);
       } catch (err) {
         console.error("Error fetching quotation:", err);
-        setError("Failed to load quotation details.");
         setLoading(false);
       }
     };
-
+  
     fetchQuotation();
   }, [id]);
+  
 
-  // ฟังก์ชันสำหรับอัปเดต Quotation
+  // คำนวณ Total และ Net Amount
+  useEffect(() => {
+    const totalBeforeFee = quotationData.items.reduce(
+      (sum, itm) => sum + itm.unit * itm.unitPrice,
+      0
+    );
+    const netAmount =
+      totalBeforeFee - quotationData.discount + totalBeforeFee * (quotationData.fee / 100);
+    setQuotationData((prev) => ({ ...prev, totalBeforeFee, netAmount }));
+  }, [quotationData.items, quotationData.discount, quotationData.fee]);
+
+  const handleItemChange = (field, value) => {
+    setItem((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const addItem = () => {
+    if (!item.description || !item.unit || !item.unitPrice) {
+      alert("Please fill in all item fields.");
+      return;
+    }
+  
+    const calculatedAmount = item.unit * parseFloat(item.unitPrice);
+    setQuotationData((prev) => ({
+      ...prev,
+      items: [
+        ...prev.items,
+        { ...item, amount: calculatedAmount || 0 }, // เพิ่มการคำนวณ amount
+      ],
+    }));
+    setItem({ description: "", unit: 1, unitPrice: "" });
+  };
+  
+  
+
+  const removeItem = (index) => {
+    setQuotationData((prev) => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateItem = (index, updatedItem) => {
+    const calculatedAmount = updatedItem.unit * parseFloat(updatedItem.unitPrice || 0);
+    setQuotationData((prev) => ({
+      ...prev,
+      items: prev.items.map((itm, i) =>
+        i === index ? { ...updatedItem, amount: calculatedAmount } : itm
+      ),
+    }));
+  };
+  
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setQuotationData((prev) => ({
+      ...prev,
+      [name]:
+        name === "discount" || name === "fee" ? parseFloat(value) || 0 : value,
+    }));
+  };
+
   const handleUpdate = async (e) => {
     e.preventDefault();
+  
+    // คำนวณ amount สำหรับ items ก่อนส่งข้อมูล
+    const updatedItems = quotationData.items.map((item) => ({
+      ...item,
+      amount: item.unit * parseFloat(item.unitPrice || 0), // คำนวณ amount ใหม่
+    }));
+  
+    const updatedQuotationData = {
+      ...quotationData,
+      items: updatedItems, // อัปเดต items ที่มี amount
+    };
+  
     try {
+      console.log("Updated Quotation Data:", updatedQuotationData); // ตรวจสอบข้อมูลก่อนอัปเดต
       const token = localStorage.getItem("token");
-      await axios.patch(`http://localhost:5000/api/quotations/${id}`, quotation, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      await axios.patch(`http://localhost:5000/api/quotations/${id}`, updatedQuotationData, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       alert("Quotation updated successfully!");
       navigate("/quotations");
@@ -48,79 +156,46 @@ const EditQuotation = () => {
       alert("Failed to update quotation.");
     }
   };
+  
+  
 
-  // ฟังก์ชันสำหรับเปลี่ยนแปลงค่าฟิลด์
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setQuotation({ ...quotation, [name]: value });
+  const handlePreview = async () => {
+    const blob = await pdf(<QuotationPreview quotationData={quotationData} />).toBlob();
+    const url = URL.createObjectURL(blob);
+    const newTab = window.open();
+    if (newTab) {
+      newTab.document.write(`<iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>`);
+    }
   };
 
   if (loading) {
     return <p className="text-center mt-4 text-gray-500">Loading...</p>;
   }
 
-  if (error) {
-    return <p className="text-center mt-4 text-red-500">{error}</p>;
-  }
-
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Edit Quotation</h1>
-
-      {/* ฟอร์มแก้ไข Quotation */}
       <form onSubmit={handleUpdate} className="bg-white shadow rounded p-6">
-        <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2">Title</label>
-          <input
-            type="text"
-            name="title"
-            value={quotation.title}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2">Client</label>
-          <input
-            type="text"
-            name="client"
-            value={quotation.client || ""}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2">Amount</label>
-          <input
-            type="number"
-            name="amount"
-            value={quotation.amount}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2">Description</label>
-          <textarea
-            name="description"
-            value={quotation.description || ""}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded"
-          />
-        </div>
-
-        <div className="flex justify-end">
+        <CreateQuotationForm
+          quotationData={quotationData}
+          handleChange={handleChange}
+          setQuotationData={setQuotationData}
+        />
+        <ItemsForm
+          items={quotationData.items}
+          item={item}
+          handleItemChange={handleItemChange}
+          addItem={addItem}
+          removeItem={removeItem}
+          updateItem={updateItem}
+        />
+        <div className="flex justify-end mt-4 space-x-4">
           <button
             type="button"
-            onClick={() => navigate("/quotations")}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded mr-2 hover:bg-gray-400"
+            onClick={handlePreview}
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
           >
-            Cancel
+            Preview
           </button>
           <button
             type="submit"
