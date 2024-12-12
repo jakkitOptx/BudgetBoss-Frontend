@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 20,
-    textAlign: "center",
+    textAlign: "left",
   },
   section: {
     marginBottom: 20,
@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 5,
     textAlign: "center",
+    minHeight: 20,
   },
   summary: {
     marginTop: 20,
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   signatureSection: {
-    marginTop: 20,
+    marginTop: 40,
     flexDirection: "row",
     justifyContent: "space-between",
   },
@@ -77,147 +78,199 @@ const styles = StyleSheet.create({
   },
 });
 
-const QuotationPreview = ({ quotationData }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
+const QuotationPreview = ({ quotationData }) => {
+  const renderHeader = () => {
+    // ดึงข้อมูล username จาก localStorage
+    const user = JSON.parse(localStorage.getItem("user")) || {};
+    const email = user.username || "";
+    const domain = email.split("@")[1]?.split(".")[0] || "";
+  
+    // ตรวจสอบชื่อบริษัท
+    const companyName =
+      domain === "neonworks"
+        ? "NEON"
+        : domain === "optx"
+        ? "OPTX"
+        : "UNKNOWN";
+  
+    // ดึงปีที่ออกเอกสาร
+    const year = new Date(quotationData.documentDate).getFullYear();
+  
+    // สร้าง Document No ตามรูปแบบ
+    const documentNo = `${companyName}(${quotationData.type})-${year}-${quotationData.runNumber}`;
+  
+    return (
       <View style={styles.header}>
         <Text style={{ fontSize: 16, fontWeight: "bold" }}>Quotation</Text>
+        <View style={styles.section}>
+          <Text>Document No: {documentNo}</Text>
+          <Text>Document Date: {new Date(quotationData.documentDate).toLocaleDateString("th-TH")}</Text>
+          <Text>Salesperson: {quotationData.salePerson}</Text>
+          <Text>Project Name: {quotationData.projectName}</Text>
+          <Text>Project Run: {quotationData.period}</Text>
+          <Text>Customer Name: {quotationData.client}</Text>
+        </View>
       </View>
+    );
+  };
+  
+  
 
-      <View style={styles.section}>
-        <Text>Title: {quotationData.title}</Text>
-        <Text>Client: {quotationData.client}</Text>
-        <Text>Sale Person: {quotationData.salePerson}</Text>
-        <Text>
-          Document Date: {new Date(quotationData.documentDate).toLocaleDateString("th-TH")}
+  const renderTableHeader = () => (
+    <View style={styles.tableRow}>
+      <Text style={styles.tableColHeader}>No.</Text>
+      <Text style={styles.tableColHeader}>Description</Text>
+      <Text style={styles.tableColHeader}>Units</Text>
+      <Text style={styles.tableColHeader}>Unit Price</Text>
+      <Text style={styles.tableColHeader}>Amount</Text>
+    </View>
+  );
+
+  const renderItems = (items, startIndex = 0) => {
+    const maxRows = 16;
+    const itemsToRender = [...items];
+    while (itemsToRender.length < maxRows) {
+      itemsToRender.push({});
+    }
+  
+    return itemsToRender.map((item, index) => (
+      <View style={styles.tableRow} key={index}>
+        <Text style={styles.tableCol}>{item.description ? startIndex + index + 1 : ""}</Text>
+        <Text style={styles.tableCol}>{item.description || ""}</Text>
+        <Text style={styles.tableCol}>{item.unit || ""}</Text>
+        <Text style={styles.tableCol}>
+          {item.unitPrice
+            ? parseFloat(item.unitPrice).toLocaleString("th-TH", {
+                style: "decimal",
+                minimumFractionDigits: 2,
+              })
+            : ""}
+        </Text>
+        <Text style={styles.tableCol}>
+          {item.unit && item.unitPrice
+            ? (item.unit * item.unitPrice).toLocaleString("th-TH", {
+                style: "decimal",
+                minimumFractionDigits: 2,
+              })
+            : ""}
         </Text>
       </View>
+    ));
+  };
+  
 
-      <View style={styles.section}>
-        <Text style={{ fontSize: 12, fontWeight: "bold", marginBottom: 5 }}>Items</Text>
+  const renderSummary = () => (
+    <View style={styles.summary}>
+      <View style={styles.summaryRow}>
+        <Text>Total Before Fee:</Text>
+        <Text>
+          {quotationData.totalBeforeFee.toLocaleString("th-TH", {
+            style: "decimal",
+            minimumFractionDigits: 2,
+          })}
+        </Text>
+      </View>
+      <View style={styles.summaryRow}>
+        <Text>Fee ({quotationData.fee}%):</Text>
+        <Text>
+          {(quotationData.totalBeforeFee * (quotationData.fee / 100)).toLocaleString("th-TH", {
+            style: "decimal",
+            minimumFractionDigits: 2,
+          })}
+        </Text>
+      </View>
+      <View style={styles.summaryRow}>
+        <Text>Total:</Text>
+        <Text>
+          {quotationData.total.toLocaleString("th-TH", {
+            style: "decimal",
+            minimumFractionDigits: 2,
+          })}
+        </Text>
+      </View>
+      <View style={styles.summaryRow}>
+        <Text>Discount:</Text>
+        <Text>
+          {quotationData.discount.toLocaleString("th-TH", {
+            style: "decimal",
+            minimumFractionDigits: 2,
+          })}
+        </Text>
+      </View>
+      <View style={styles.summaryRow}>
+        <Text>Amount Before Tax:</Text>
+        <Text>
+          {quotationData.amountBeforeTax.toLocaleString("th-TH", {
+            style: "decimal",
+            minimumFractionDigits: 2,
+          })}
+        </Text>
+      </View>
+      <View style={styles.summaryRow}>
+        <Text>VAT (7%):</Text>
+        <Text>
+          {quotationData.vat.toLocaleString("th-TH", {
+            style: "decimal",
+            minimumFractionDigits: 2,
+          })}
+        </Text>
+      </View>
+      <View style={styles.summaryRowLast}>
+        <Text>Net Amount:</Text>16
+        <Text>
+          {quotationData.netAmount.toLocaleString("th-TH", {
+            style: "decimal",
+            minimumFractionDigits: 2,
+          })}
+        </Text>
+      </View>
+    </View>
+  );
+
+  const renderSignature = () => (
+    <View style={styles.signatureSection}>
+      <View style={styles.signatureBlock}>
+        <Text>Customer</Text>
+      </View>
+      <View style={styles.signatureBlock}>
+        <Text>Created by</Text>
+      </View>
+      <View style={styles.signatureBlock}>
+        <Text>Proposed by</Text>
+      </View>
+    </View>
+  );
+
+  return (
+    <Document>
+      {/* หน้าแรก */}
+      <Page size="A4" style={styles.page}>
+        {renderHeader()}
         <View style={styles.itemsTable}>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableColHeader}>No.</Text>
-            <Text style={styles.tableColHeader}>Description</Text>
-            <Text style={styles.tableColHeader}>Units</Text>
-            <Text style={styles.tableColHeader}>Unit Price</Text>
-            <Text style={styles.tableColHeader}>Amount</Text>
+          {renderTableHeader()}
+          {renderItems(quotationData.items.slice(0, 16), 0)} {/* Start from 0 */}
+        </View>
+        {quotationData.items.length <= 16 && (
+          <>
+            {renderSummary()}
+            {renderSignature()}
+          </>
+        )}
+      </Page>
+      {/* หน้าถัดไป */}
+      {quotationData.items.length > 16 && (
+        <Page size="A4" style={styles.page}>
+          {renderHeader()}
+          <View style={styles.itemsTable}>
+            {renderTableHeader()}
+            {renderItems(quotationData.items.slice(16), 16)} {/* Start from 16 */}
           </View>
-          {[...Array(20)].map((_, index) => (
-            <View style={styles.tableRow} key={index}>
-              <Text style={styles.tableCol}>
-                {quotationData.items[index] ? index + 1 : ""}
-              </Text>
-              <Text style={styles.tableCol}>
-                {quotationData.items[index]?.description || ""}
-              </Text>
-              <Text style={styles.tableCol}>
-                {quotationData.items[index]?.unit || ""}
-              </Text>
-              <Text style={styles.tableCol}>
-                {quotationData.items[index]?.unitPrice
-                  ? parseFloat(quotationData.items[index].unitPrice).toLocaleString("th-TH", {
-                      style: "decimal",
-                      minimumFractionDigits: 2,
-                    })
-                  : ""}
-              </Text>
-              <Text style={styles.tableCol}>
-                {quotationData.items[index]?.unit && quotationData.items[index]?.unitPrice
-                  ? (quotationData.items[index].unit * quotationData.items[index].unitPrice).toLocaleString("th-TH", {
-                      style: "decimal",
-                      minimumFractionDigits: 2,
-                    })
-                  : ""}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      <View style={styles.summary}>
-        <View style={styles.summaryRow}>
-          <Text>Total Before Fee:</Text>
-          <Text>
-            {quotationData.totalBeforeFee.toLocaleString("th-TH", {
-              style: "decimal",
-              minimumFractionDigits: 2,
-            })}
-          </Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text>Fee ({quotationData.fee}%):</Text>
-          <Text>
-            {(quotationData.totalBeforeFee * (quotationData.fee / 100)).toLocaleString("th-TH", {
-              style: "decimal",
-              minimumFractionDigits: 2,
-            })}
-          </Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text>Total:</Text>
-          <Text>
-            {quotationData.total.toLocaleString("th-TH", {
-              style: "decimal",
-              minimumFractionDigits: 2,
-            })}
-          </Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text>Discount:</Text>
-          <Text>
-            {quotationData.discount.toLocaleString("th-TH", {
-              style: "decimal",
-              minimumFractionDigits: 2,
-            })}
-          </Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text>Amount Before Tax:</Text>
-          <Text>
-            {quotationData.amountBeforeTax.toLocaleString("th-TH", {
-              style: "decimal",
-              minimumFractionDigits: 2,
-            })}
-          </Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text>VAT (7%):</Text>
-          <Text>
-            {quotationData.vat.toLocaleString("th-TH", {
-              style: "decimal",
-              minimumFractionDigits: 2,
-            })}
-          </Text>
-        </View>
-        <View style={styles.summaryRowLast}>
-          <Text>Net Amount:</Text>
-          <Text>
-            {quotationData.netAmount.toLocaleString("th-TH", {
-              style: "decimal",
-              minimumFractionDigits: 2,
-            })}
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.signatureSection}>
-        <View style={styles.signatureBlock}>
-          <Text>Customer</Text>
-        </View>
-        <View style={styles.signatureBlock}>
-          <Text>Created by</Text>
-        </View>
-        <View style={styles.signatureBlock}>
-          <Text>Proposed by</Text>
-        </View>
-      </View>
-
-      <View style={styles.footer}>
-        <Text>Thank you for your business!</Text>
-      </View>
-    </Page>
-  </Document>
-);
+          {renderSummary()}
+          {renderSignature()}
+        </Page>
+      )}
+    </Document>
+  );  
+};
 
 export default QuotationPreview;
