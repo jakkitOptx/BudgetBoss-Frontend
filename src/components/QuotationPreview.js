@@ -1,15 +1,26 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
+import { Font } from "@react-pdf/renderer";
+
+// ลงทะเบียนฟอนต์ภาษาไทย
+Font.register({
+  family: "Prompt",
+  fonts: [
+    { src: "/fonts/Prompt-Regular.ttf" }, // Regular font
+    { src: "/fonts/Prompt-Bold.ttf", fontWeight: "bold" }, // Bold font
+  ],
+});
 
 const styles = StyleSheet.create({
   page: {
     padding: 30,
     fontSize: 10,
-    fontFamily: "Helvetica",
+    fontFamily: "Prompt", // เปลี่ยนฟอนต์เป็น Prompt
   },
   header: {
     marginBottom: 20,
     textAlign: "left",
+    fontFamily: "Prompt", // เพิ่มฟอนต์ในส่วน Header
   },
   section: {
     marginBottom: 20,
@@ -40,6 +51,7 @@ const styles = StyleSheet.create({
     padding: 5,
     textAlign: "center",
     minHeight: 20,
+    fontFamily: "Prompt", // ฟอนต์ภาษาไทยในตาราง
   },
   summary: {
     marginTop: 20,
@@ -66,7 +78,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   signatureSection: {
-    marginTop: 40,
+    marginTop: 80,
     flexDirection: "row",
     justifyContent: "space-between",
   },
@@ -84,27 +96,26 @@ const QuotationPreview = ({ quotationData }) => {
     const user = JSON.parse(localStorage.getItem("user")) || {};
     const email = user.username || "";
     const domain = email.split("@")[1]?.split(".")[0] || "";
-  
+
     // ตรวจสอบชื่อบริษัท
     const companyName =
-      domain === "neonworks"
-        ? "NEON"
-        : domain === "optx"
-        ? "OPTX"
-        : "UNKNOWN";
-  
+      domain === "neonworks" ? "NEON" : domain === "optx" ? "OPTX" : "UNKNOWN";
+
     // ดึงปีที่ออกเอกสาร
     const year = new Date(quotationData.documentDate).getFullYear();
-  
+
     // สร้าง Document No ตามรูปแบบ
     const documentNo = `${companyName}(${quotationData.type})-${year}-${quotationData.runNumber}`;
-  
+
     return (
       <View style={styles.header}>
         <Text style={{ fontSize: 16, fontWeight: "bold" }}>Quotation</Text>
         <View style={styles.section}>
           <Text>Document No: {documentNo}</Text>
-          <Text>Document Date: {new Date(quotationData.documentDate).toLocaleDateString("th-TH")}</Text>
+          <Text>
+            Document Date:{" "}
+            {new Date(quotationData.documentDate).toLocaleDateString("th-TH")}
+          </Text>
           <Text>Salesperson: {quotationData.salePerson}</Text>
           <Text>Project Name: {quotationData.projectName}</Text>
           <Text>Project Run: {quotationData.period}</Text>
@@ -113,8 +124,6 @@ const QuotationPreview = ({ quotationData }) => {
       </View>
     );
   };
-  
-  
 
   const renderTableHeader = () => (
     <View style={styles.tableRow}>
@@ -127,15 +136,17 @@ const QuotationPreview = ({ quotationData }) => {
   );
 
   const renderItems = (items, startIndex = 0) => {
-    const maxRows = 16;
+    const maxRows = 12;
     const itemsToRender = [...items];
     while (itemsToRender.length < maxRows) {
       itemsToRender.push({});
     }
-  
+
     return itemsToRender.map((item, index) => (
       <View style={styles.tableRow} key={index}>
-        <Text style={styles.tableCol}>{item.description ? startIndex + index + 1 : ""}</Text>
+        <Text style={styles.tableCol}>
+          {item.description ? startIndex + index + 1 : ""}
+        </Text>
         <Text style={styles.tableCol}>{item.description || ""}</Text>
         <Text style={styles.tableCol}>{item.unit || ""}</Text>
         <Text style={styles.tableCol}>
@@ -157,7 +168,6 @@ const QuotationPreview = ({ quotationData }) => {
       </View>
     ));
   };
-  
 
   const renderSummary = () => (
     <View style={styles.summary}>
@@ -173,7 +183,10 @@ const QuotationPreview = ({ quotationData }) => {
       <View style={styles.summaryRow}>
         <Text>Fee ({quotationData.fee}%):</Text>
         <Text>
-          {(quotationData.totalBeforeFee * (quotationData.fee / 100)).toLocaleString("th-TH", {
+          {(
+            quotationData.totalBeforeFee *
+            (quotationData.fee / 100)
+          ).toLocaleString("th-TH", {
             style: "decimal",
             minimumFractionDigits: 2,
           })}
@@ -216,7 +229,7 @@ const QuotationPreview = ({ quotationData }) => {
         </Text>
       </View>
       <View style={styles.summaryRowLast}>
-        <Text>Net Amount:</Text>16
+        <Text>Net Amount:</Text>
         <Text>
           {quotationData.netAmount.toLocaleString("th-TH", {
             style: "decimal",
@@ -248,9 +261,10 @@ const QuotationPreview = ({ quotationData }) => {
         {renderHeader()}
         <View style={styles.itemsTable}>
           {renderTableHeader()}
-          {renderItems(quotationData.items.slice(0, 16), 0)} {/* Start from 0 */}
+          {renderItems(quotationData.items.slice(0, 12), 0)}{" "}
+          {/* Start from 0 */}
         </View>
-        {quotationData.items.length <= 16 && (
+        {quotationData.items.length <= 12 && (
           <>
             {renderSummary()}
             {renderSignature()}
@@ -258,19 +272,20 @@ const QuotationPreview = ({ quotationData }) => {
         )}
       </Page>
       {/* หน้าถัดไป */}
-      {quotationData.items.length > 16 && (
+      {quotationData.items.length > 12 && (
         <Page size="A4" style={styles.page}>
           {renderHeader()}
           <View style={styles.itemsTable}>
             {renderTableHeader()}
-            {renderItems(quotationData.items.slice(16), 16)} {/* Start from 16 */}
+            {renderItems(quotationData.items.slice(12), 12)}{" "}
+            {/* Start from 12 */}
           </View>
           {renderSummary()}
           {renderSignature()}
         </Page>
       )}
     </Document>
-  );  
+  );
 };
 
 export default QuotationPreview;
