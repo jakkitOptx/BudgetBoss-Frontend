@@ -30,7 +30,7 @@ const ItemsForm = ({
 
   return (
     <div>
-      <h2 className="text-lg font-bold mb-4">Items</h2>
+      <h2 className="text-lg font-bold mb-4">Description</h2>
 
       {/* แสดง Table ของ Items */}
       {items.length > 0 && (

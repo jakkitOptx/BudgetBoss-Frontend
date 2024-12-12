@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 
 const QuotationManagement = () => {
   const [quotations, setQuotations] = useState([]);
@@ -138,23 +139,28 @@ const QuotationManagement = () => {
                     </span>
                   </td>
                   <td className="py-2 flex space-x-2">
+                    {/* ปุ่ม View */}
                     <Link
                       to={`/quotations/${q._id}`}
-                      className="text-blue-500 hover:underline"
+                      className="flex items-center bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition duration-200"
                     >
-                      View
+                      <FaEye className="mr-2" /> View
                     </Link>
+
+                    {/* ปุ่ม Edit */}
                     <button
                       onClick={() => navigate(`/quotations/edit/${q._id}`)}
-                      className="text-yellow-500 hover:underline"
+                      className="flex items-center bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition duration-200"
                     >
-                      Edit
+                      <FaEdit className="mr-2" /> Edit
                     </button>
+
+                    {/* ปุ่ม Delete */}
                     <button
                       onClick={() => handleDelete(q._id)}
-                      className="text-red-500 hover:underline"
+                      className="flex items-center bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition duration-200"
                     >
-                      Delete
+                      <FaTrash className="mr-2" /> Delete
                     </button>
                   </td>
                 </tr>
