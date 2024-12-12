@@ -2,6 +2,37 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 
+import { pdf } from "@react-pdf/renderer";
+import QuotationPreview from "../components/QuotationPreview";
+import { FaFilePdf } from "react-icons/fa";
+
+const handleDownloadPDF = async (quotation) => {
+  // ดึงข้อมูล username จาก localStorage
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const email = user.username || "";
+  const domain = email.split("@")[1]?.split(".")[0] || "";
+
+  // ตรวจสอบชื่อบริษัท
+  const companyName =
+    domain === "neonworks" ? "NEON" : domain === "optx" ? "OPTX" : "UNKNOWN";
+
+  // ดึงปีที่ออกเอกสาร
+  const year = new Date(quotation.documentDate).getFullYear();
+
+  // สร้างชื่อเอกสาร
+  const documentNo = `${companyName}(${quotation.type})-${year}-${quotation.runNumber}`;
+  const fileName = `${documentNo} - ${quotation.projectName}.pdf`;
+
+  // สร้าง PDF Blob และดาวน์โหลดไฟล์
+  const blob = await pdf(<QuotationPreview quotationData={quotation} />).toBlob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
 const QuotationDetails = () => {
   const { id } = useParams(); // ดึง `id` จาก URL Parameter
   const [quotation, setQuotation] = useState(null); // เก็บข้อมูล Quotation
@@ -54,6 +85,16 @@ const QuotationDetails = () => {
       <h1 className="text-3xl font-bold text-gray-800 mb-6">
         Quotation Details
       </h1>
+       {/* ปุ่ม Download PDF */}
+      <div className="flex justify-end mt-6 mb-6">
+        <button
+          onClick={() => handleDownloadPDF(quotation)}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center gap-2"
+        >
+          <FaFilePdf size={16} /> {/* เพิ่มไอคอน */}
+          Download PDF
+        </button>
+      </div>
 
       {/* ข้อมูลพื้นฐาน */}
       <div className="bg-white shadow rounded p-6 mb-6">
@@ -241,6 +282,7 @@ const QuotationDetails = () => {
           </p>
         </div>
       </div>
+     
     </div>
   );
 };
