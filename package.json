@@ -17,6 +17,7 @@
     "react-router-dom": "^7.0.2",
     "react-scripts": "5.0.1",
     "react-toastify": "^10.0.6",
+    "thai-baht-text": "^2.0.5",
     "web-vitals": "^2.1.4",
     "yup": "^1.4.0"
   },

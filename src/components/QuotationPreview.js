@@ -1,6 +1,7 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
 import { Font } from "@react-pdf/renderer";
+import ThaiBaht from "thai-baht-text";
 
 // ลงทะเบียนฟอนต์ภาษาไทย
 Font.register({
@@ -15,12 +16,11 @@ const styles = StyleSheet.create({
   page: {
     padding: 30,
     fontSize: 10,
-    fontFamily: "Prompt", // เปลี่ยนฟอนต์เป็น Prompt
+    fontFamily: "Prompt",
   },
   header: {
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: "left",
-    fontFamily: "Prompt", // เพิ่มฟอนต์ในส่วน Header
   },
   section: {
     marginBottom: 20,
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     width: "100%",
     borderWidth: 1,
     borderStyle: "solid",
-    marginTop: 10,
+    marginTop: 0,
   },
   tableRow: {
     flexDirection: "row",
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
     borderWidth: 1,
     textAlign: "center",
-    padding: 5,
+    padding: 3, // ลด padding
     fontWeight: "bold",
     backgroundColor: "#f0f0f0",
   },
@@ -48,23 +48,33 @@ const styles = StyleSheet.create({
     width: "20%",
     borderStyle: "solid",
     borderWidth: 1,
-    padding: 5,
+    padding: 3, // ลด padding
     textAlign: "center",
-    minHeight: 20,
-    fontFamily: "Prompt", // ฟอนต์ภาษาไทยในตาราง
+    minHeight: 20, // ลด minHeight
+    fontFamily: "Prompt",
   },
-  summary: {
+  summaryContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 20,
-    marginLeft: "auto",
     borderWidth: 1,
     borderStyle: "solid",
+  },
+  paymentDetails: {
     width: "50%",
+    padding: 10,
+    backgroundColor: "#f8f8f8",
+    borderRightWidth: 1,
+    borderStyle: "solid",
+  },
+  summary: {
+    width: "50%",
+    padding: 10,
   },
   summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     borderBottomWidth: 1,
-    borderStyle: "solid",
     padding: 5,
   },
   summaryRowLast: {
@@ -72,10 +82,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 5,
   },
-  footer: {
-    marginTop: 30,
-    fontSize: 10,
-    textAlign: "center",
+  characterAmount: {
+    textAlign: "left",
+    fontWeight: "bold",
+    marginTop: 10,
+    borderTopWidth: 1,
+    borderStyle: "solid",
+    paddingTop: 5,
   },
   signatureSection: {
     marginTop: 80,
@@ -92,19 +105,12 @@ const styles = StyleSheet.create({
 
 const QuotationPreview = ({ quotationData }) => {
   const renderHeader = () => {
-    // ดึงข้อมูล username จาก localStorage
     const user = JSON.parse(localStorage.getItem("user")) || {};
     const email = user.username || "";
     const domain = email.split("@")[1]?.split(".")[0] || "";
-
-    // ตรวจสอบชื่อบริษัท
     const companyName =
       domain === "neonworks" ? "NEON" : domain === "optx" ? "OPTX" : "UNKNOWN";
-
-    // ดึงปีที่ออกเอกสาร
     const year = new Date(quotationData.documentDate).getFullYear();
-
-    // สร้าง Document No ตามรูปแบบ
     const documentNo = `${companyName}(${quotationData.type})-${year}-${quotationData.runNumber}`;
 
     return (
@@ -136,10 +142,10 @@ const QuotationPreview = ({ quotationData }) => {
   );
 
   const renderItems = (items, startIndex = 0) => {
-    const maxRows = 12;
+    const maxRows = items.length <= 10 ? 10 : 27; // ถ้าจำนวน items <= 10 แสดง 10 แถว, ถ้าเกินแสดง 27 แถว
     const itemsToRender = [...items];
     while (itemsToRender.length < maxRows) {
-      itemsToRender.push({});
+      itemsToRender.push({}); // เติม row ว่าง
     }
 
     return itemsToRender.map((item, index) => (
@@ -169,75 +175,90 @@ const QuotationPreview = ({ quotationData }) => {
     ));
   };
 
-  const renderSummary = () => (
-    <View style={styles.summary}>
-      <View style={styles.summaryRow}>
-        <Text>Total Before Fee:</Text>
-        <Text>
-          {quotationData.totalBeforeFee.toLocaleString("th-TH", {
-            style: "decimal",
-            minimumFractionDigits: 2,
-          })}
-        </Text>
+  const renderSummaryAndPaymentDetails = () => (
+    <View style={styles.summaryContainer}>
+      <View style={styles.paymentDetails}>
+        <Text style={{ fontWeight: "bold" }}>รายละเอียดการชำระเงินน</Text>
+        <Text>Payment Details</Text>
+        <Text>- ระยะเวลา Credit Term {quotationData.CreditTerm || 0} วัน</Text>
       </View>
-      <View style={styles.summaryRow}>
-        <Text>Fee ({quotationData.fee}%):</Text>
-        <Text>
-          {(
-            quotationData.totalBeforeFee *
-            (quotationData.fee / 100)
-          ).toLocaleString("th-TH", {
-            style: "decimal",
-            minimumFractionDigits: 2,
-          })}
-        </Text>
-      </View>
-      <View style={styles.summaryRow}>
-        <Text>Total:</Text>
-        <Text>
-          {quotationData.total.toLocaleString("th-TH", {
-            style: "decimal",
-            minimumFractionDigits: 2,
-          })}
-        </Text>
-      </View>
-      <View style={styles.summaryRow}>
-        <Text>Discount:</Text>
-        <Text>
-          {quotationData.discount.toLocaleString("th-TH", {
-            style: "decimal",
-            minimumFractionDigits: 2,
-          })}
-        </Text>
-      </View>
-      <View style={styles.summaryRow}>
-        <Text>Amount Before Tax:</Text>
-        <Text>
-          {quotationData.amountBeforeTax.toLocaleString("th-TH", {
-            style: "decimal",
-            minimumFractionDigits: 2,
-          })}
-        </Text>
-      </View>
-      <View style={styles.summaryRow}>
-        <Text>VAT (7%):</Text>
-        <Text>
-          {quotationData.vat.toLocaleString("th-TH", {
-            style: "decimal",
-            minimumFractionDigits: 2,
-          })}
-        </Text>
-      </View>
-      <View style={styles.summaryRowLast}>
-        <Text>Net Amount:</Text>
-        <Text>
-          {quotationData.netAmount.toLocaleString("th-TH", {
-            style: "decimal",
-            minimumFractionDigits: 2,
-          })}
-        </Text>
+      <View style={styles.summary}>
+        <View style={styles.summaryRow}>
+          <Text>Total Before Fee:</Text>
+          <Text>
+            {quotationData.totalBeforeFee.toLocaleString("th-TH", {
+              style: "decimal",
+              minimumFractionDigits: 2,
+            })}
+          </Text>
+        </View>
+        <View style={styles.summaryRow}>
+          <Text>Fee ({quotationData.fee}%):</Text>
+          <Text>
+            {(
+              quotationData.totalBeforeFee *
+              (quotationData.fee / 100)
+            ).toLocaleString("th-TH", {
+              style: "decimal",
+              minimumFractionDigits: 2,
+            })}
+          </Text>
+        </View>
+        <View style={styles.summaryRow}>
+          <Text>Total:</Text>
+          <Text>
+            {quotationData.total.toLocaleString("th-TH", {
+              style: "decimal",
+              minimumFractionDigits: 2,
+            })}
+          </Text>
+        </View>
+        <View style={styles.summaryRow}>
+          <Text>Discount:</Text>
+          <Text>
+            {quotationData.discount.toLocaleString("th-TH", {
+              style: "decimal",
+              minimumFractionDigits: 2,
+            })}
+          </Text>
+        </View>
+        <View style={styles.summaryRow}>
+          <Text>Amount Before Tax:</Text>
+          <Text>
+            {quotationData.amountBeforeTax.toLocaleString("th-TH", {
+              style: "decimal",
+              minimumFractionDigits: 2,
+            })}
+          </Text>
+        </View>
+        <View style={styles.summaryRow}>
+          <Text>VAT (7%):</Text>
+          <Text>
+            {quotationData.vat.toLocaleString("th-TH", {
+              style: "decimal",
+              minimumFractionDigits: 2,
+            })}
+          </Text>
+        </View>
+        <View style={styles.summaryRowLast}>
+          <Text>Net Amount:</Text>
+          <Text>
+            {quotationData.netAmount.toLocaleString("th-TH", {
+              style: "decimal",
+              minimumFractionDigits: 2,
+            })}
+          </Text>
+        </View>
       </View>
     </View>
+  );
+
+  const renderCharacterAmount = () => (
+    <Text style={styles.characterAmount}>
+      {`จำนวนเงินตัวอักษร\nCharacter Amount: (${ThaiBaht(
+        quotationData.netAmount || 0
+      )})`}
+    </Text>
   );
 
   const renderSignature = () => (
@@ -256,31 +277,24 @@ const QuotationPreview = ({ quotationData }) => {
 
   return (
     <Document>
-      {/* หน้าแรก */}
       <Page size="A4" style={styles.page}>
         {renderHeader()}
         <View style={styles.itemsTable}>
           {renderTableHeader()}
-          {renderItems(quotationData.items.slice(0, 12), 0)}{" "}
-          {/* Start from 0 */}
+          {renderItems(quotationData.items.slice(0, 27), 0)}
         </View>
-        {quotationData.items.length <= 12 && (
+        {quotationData.items.length <= 27 && (
           <>
-            {renderSummary()}
+            {renderSummaryAndPaymentDetails()}
+            {renderCharacterAmount()}
             {renderSignature()}
           </>
         )}
       </Page>
-      {/* หน้าถัดไป */}
-      {quotationData.items.length > 12 && (
+      {quotationData.items.length > 27 && (
         <Page size="A4" style={styles.page}>
-          {renderHeader()}
-          <View style={styles.itemsTable}>
-            {renderTableHeader()}
-            {renderItems(quotationData.items.slice(12), 12)}{" "}
-            {/* Start from 12 */}
-          </View>
-          {renderSummary()}
+          {renderSummaryAndPaymentDetails()}
+          {renderCharacterAmount()}
           {renderSignature()}
         </Page>
       )}
