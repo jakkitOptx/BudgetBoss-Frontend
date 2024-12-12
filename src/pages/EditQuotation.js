@@ -50,13 +50,20 @@ const EditQuotation = () => {
   
         const data = response.data;
   
-        // ตรวจสอบค่าที่ได้จาก API และกำหนดค่าเริ่มต้น
+        // แปลงวันที่ให้เป็น yyyy-MM-dd
+        const formatDate = (isoDate) =>
+          isoDate ? isoDate.split("T")[0] : "";
+  
         setQuotationData({
           ...data,
-          netAmount: data.netAmount || 0, // ตรวจสอบและกำหนดค่า Default
+          documentDate: formatDate(data.documentDate),
+          startDate: formatDate(data.startDate),
+          endDate: formatDate(data.endDate),
+          netAmount: data.netAmount || 0,
           totalBeforeFee: data.totalBeforeFee || 0,
           items: data.items || [],
         });
+  
         setLoading(false);
       } catch (err) {
         console.error("Error fetching quotation:", err);
@@ -132,19 +139,21 @@ const EditQuotation = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
   
-    // คำนวณ amount สำหรับ items ก่อนส่งข้อมูล
-    const updatedItems = quotationData.items.map((item) => ({
-      ...item,
-      amount: item.unit * parseFloat(item.unitPrice || 0), // คำนวณ amount ใหม่
-    }));
+    const toISOString = (dateString) =>
+      dateString ? new Date(dateString).toISOString() : null;
   
     const updatedQuotationData = {
       ...quotationData,
-      items: updatedItems, // อัปเดต items ที่มี amount
+      documentDate: toISOString(quotationData.documentDate),
+      startDate: toISOString(quotationData.startDate),
+      endDate: toISOString(quotationData.endDate),
+      items: quotationData.items.map((item) => ({
+        ...item,
+        amount: item.unit * parseFloat(item.unitPrice || 0),
+      })),
     };
   
     try {
-      console.log("Updated Quotation Data:", updatedQuotationData); // ตรวจสอบข้อมูลก่อนอัปเดต
       const token = localStorage.getItem("token");
       await axios.patch(`http://localhost:5000/api/quotations/${id}`, updatedQuotationData, {
         headers: { Authorization: `Bearer ${token}` },
