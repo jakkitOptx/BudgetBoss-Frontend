@@ -35,23 +35,56 @@ const styles = StyleSheet.create({
   tableRow: {
     flexDirection: "row",
   },
-  tableColHeader: {
-    width: "20%",
+  tableColHeaderNo: {
+    width: "8%", // ช่อง No. เล็กลง
     borderStyle: "solid",
     borderWidth: 1,
     textAlign: "center",
-    padding: 3, // ลด padding
+    padding: 3,
     fontWeight: "bold",
     backgroundColor: "#f0f0f0",
   },
-  tableCol: {
-    width: "20%",
+  tableColHeaderDesc: {
+    flexGrow: 1, // ขยายใหญ่เท่าที่จำเป็น
+    flexShrink: 1,
     borderStyle: "solid",
     borderWidth: 1,
-    padding: 3, // ลด padding
+    textAlign: "left",
+    padding: 3,
+    fontWeight: "bold",
+    backgroundColor: "#f0f0f0",
+  },
+  tableColHeader: {
+    width: "16%", // ช่อง Units, Unit Price และ Amount เท่ากัน
+    borderStyle: "solid",
+    borderWidth: 1,
     textAlign: "center",
-    minHeight: 20, // ลด minHeight
-    fontFamily: "Prompt",
+    padding: 3,
+    fontWeight: "bold",
+    backgroundColor: "#f0f0f0",
+  },
+  tableColNo: {
+    width: "8%", // ช่อง No. เล็กลง
+    borderStyle: "solid",
+    borderWidth: 1,
+    textAlign: "center",
+    padding: 3,
+  },
+  tableColDesc: {
+    flexGrow: 1, // ช่อง Description ขยายเต็มที่
+    flexShrink: 1,
+    borderStyle: "solid",
+    borderWidth: 1,
+    textAlign: "left",
+    padding: 3,
+  },
+  tableCol: {
+    width: "16%", // ช่อง Units, Unit Price และ Amount เท่ากัน
+    borderStyle: "solid",
+    borderWidth: 1,
+    textAlign: "center",
+    padding: 3,
+    minHeight: 25,
   },
   summaryContainer: {
     flexDirection: "row",
@@ -133,8 +166,8 @@ const QuotationPreview = ({ quotationData }) => {
 
   const renderTableHeader = () => (
     <View style={styles.tableRow}>
-      <Text style={styles.tableColHeader}>No.</Text>
-      <Text style={styles.tableColHeader}>Description</Text>
+      <Text style={styles.tableColHeaderNo}>No.</Text>
+      <Text style={styles.tableColHeaderDesc}>Description</Text>
       <Text style={styles.tableColHeader}>Units</Text>
       <Text style={styles.tableColHeader}>Unit Price</Text>
       <Text style={styles.tableColHeader}>Amount</Text>
@@ -142,18 +175,19 @@ const QuotationPreview = ({ quotationData }) => {
   );
 
   const renderItems = (items, startIndex = 0) => {
-    const maxRows = items.length <= 10 ? 10 : 27; // ถ้าจำนวน items <= 10 แสดง 10 แถว, ถ้าเกินแสดง 27 แถว
+    const maxRows = items.length <= 10 ? 10 : 27;
     const itemsToRender = [...items];
+
     while (itemsToRender.length < maxRows) {
-      itemsToRender.push({}); // เติม row ว่าง
+      itemsToRender.push({});
     }
 
     return itemsToRender.map((item, index) => (
       <View style={styles.tableRow} key={index}>
-        <Text style={styles.tableCol}>
+        <Text style={styles.tableColNo}>
           {item.description ? startIndex + index + 1 : ""}
         </Text>
-        <Text style={styles.tableCol}>{item.description || ""}</Text>
+        <Text style={styles.tableColDesc}>{item.description || ""}</Text>
         <Text style={styles.tableCol}>{item.unit || ""}</Text>
         <Text style={styles.tableCol}>
           {item.unitPrice
