@@ -186,18 +186,18 @@ const QuotationPreview = ({ quotationData }) => {
         <View style={styles.summaryRow}>
           <Text>Total Before Fee:</Text>
           <Text>
-            {quotationData.totalBeforeFee.toLocaleString("th-TH", {
+            {(quotationData.totalBeforeFee || 0).toLocaleString("th-TH", {
               style: "decimal",
               minimumFractionDigits: 2,
             })}
           </Text>
         </View>
         <View style={styles.summaryRow}>
-          <Text>Fee ({quotationData.fee}%):</Text>
+          <Text>Fee ({quotationData.fee || 0}%):</Text>
           <Text>
             {(
-              quotationData.totalBeforeFee *
-              (quotationData.fee / 100)
+              (quotationData.totalBeforeFee || 0) *
+              ((quotationData.fee || 0) / 100)
             ).toLocaleString("th-TH", {
               style: "decimal",
               minimumFractionDigits: 2,
@@ -207,7 +207,7 @@ const QuotationPreview = ({ quotationData }) => {
         <View style={styles.summaryRow}>
           <Text>Total:</Text>
           <Text>
-            {quotationData.total.toLocaleString("th-TH", {
+            {(quotationData.total || 0).toLocaleString("th-TH", {
               style: "decimal",
               minimumFractionDigits: 2,
             })}
@@ -216,7 +216,7 @@ const QuotationPreview = ({ quotationData }) => {
         <View style={styles.summaryRow}>
           <Text>Discount:</Text>
           <Text>
-            {quotationData.discount.toLocaleString("th-TH", {
+            {(quotationData.discount || 0).toLocaleString("th-TH", {
               style: "decimal",
               minimumFractionDigits: 2,
             })}
@@ -225,7 +225,7 @@ const QuotationPreview = ({ quotationData }) => {
         <View style={styles.summaryRow}>
           <Text>Amount Before Tax:</Text>
           <Text>
-            {quotationData.amountBeforeTax.toLocaleString("th-TH", {
+            {(quotationData.amountBeforeTax || 0).toLocaleString("th-TH", {
               style: "decimal",
               minimumFractionDigits: 2,
             })}
@@ -234,7 +234,7 @@ const QuotationPreview = ({ quotationData }) => {
         <View style={styles.summaryRow}>
           <Text>VAT (7%):</Text>
           <Text>
-            {quotationData.vat.toLocaleString("th-TH", {
+            {(quotationData.vat || 0).toLocaleString("th-TH", {
               style: "decimal",
               minimumFractionDigits: 2,
             })}
@@ -243,7 +243,7 @@ const QuotationPreview = ({ quotationData }) => {
         <View style={styles.summaryRowLast}>
           <Text>Net Amount:</Text>
           <Text>
-            {quotationData.netAmount.toLocaleString("th-TH", {
+            {(quotationData.netAmount || 0).toLocaleString("th-TH", {
               style: "decimal",
               minimumFractionDigits: 2,
             })}

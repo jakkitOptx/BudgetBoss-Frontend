@@ -40,7 +40,9 @@ const ItemsForm = ({
               <tr>
                 <th className="border py-2 px-4 text-left">Description</th>
                 <th className="border py-2 px-4 text-right">Units</th>
-                <th className="border py-2 px-4 text-right">Unit Price (THB)</th>
+                <th className="border py-2 px-4 text-right">
+                  Unit Price (THB)
+                </th>
                 <th className="border py-2 px-4 text-right">Amount (THB)</th>
                 <th className="border py-2 px-4 text-center">Action</th>
               </tr>
@@ -81,13 +83,13 @@ const ItemsForm = ({
 
       {/* Form สำหรับเพิ่มหรือแก้ไข Item */}
       <div className="flex items-center space-x-4">
-        <input
-          type="text"
+        <textarea
           name="description"
           placeholder="Item Description"
           value={item.description}
           onChange={(e) => handleItemChange("description", e.target.value)}
-          className="px-4 py-2 border rounded w-full"
+          rows="4" // ความสูงเริ่มต้น 4 บรรทัด
+          className="px-4 py-2 border rounded w-full resize-y" // resize-y ให้ขยายเฉพาะแนวตั้ง
         />
         <input
           type="number"
@@ -107,7 +109,7 @@ const ItemsForm = ({
         />
         {editingIndex !== null ? (
           <button
-            type="button" // ป้องกันการ submit ฟอร์ม
+            type="button"
             onClick={saveEdit}
             className="bg-green-500 text-white px-4 py-2 rounded"
           >
@@ -115,7 +117,7 @@ const ItemsForm = ({
           </button>
         ) : (
           <button
-            type="button" // ป้องกันการ submit ฟอร์ม
+            type="button"
             onClick={addItem}
             className="bg-blue-500 text-white px-4 py-2 rounded"
           >

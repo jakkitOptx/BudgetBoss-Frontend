@@ -44,16 +44,18 @@ const EditQuotation = () => {
     const fetchQuotation = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`http://localhost:5000/api/quotations/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-  
+        const response = await axios.get(
+          `http://localhost:5000/api/quotations/${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
         const data = response.data;
-  
+
         // แปลงวันที่ให้เป็น yyyy-MM-dd
-        const formatDate = (isoDate) =>
-          isoDate ? isoDate.split("T")[0] : "";
-  
+        const formatDate = (isoDate) => (isoDate ? isoDate.split("T")[0] : "");
+
         setQuotationData({
           ...data,
           documentDate: formatDate(data.documentDate),
@@ -63,17 +65,16 @@ const EditQuotation = () => {
           totalBeforeFee: data.totalBeforeFee || 0,
           items: data.items || [],
         });
-  
+
         setLoading(false);
       } catch (err) {
         console.error("Error fetching quotation:", err);
         setLoading(false);
       }
     };
-  
+
     fetchQuotation();
   }, [id]);
-  
 
   // คำนวณ Total และ Net Amount
   useEffect(() => {
@@ -82,7 +83,9 @@ const EditQuotation = () => {
       0
     );
     const netAmount =
-      totalBeforeFee - quotationData.discount + totalBeforeFee * (quotationData.fee / 100);
+      totalBeforeFee -
+      quotationData.discount +
+      totalBeforeFee * (quotationData.fee / 100);
     setQuotationData((prev) => ({ ...prev, totalBeforeFee, netAmount }));
   }, [quotationData.items, quotationData.discount, quotationData.fee]);
 
@@ -95,7 +98,7 @@ const EditQuotation = () => {
       alert("Please fill in all item fields.");
       return;
     }
-  
+
     const calculatedAmount = item.unit * parseFloat(item.unitPrice);
     setQuotationData((prev) => ({
       ...prev,
@@ -106,8 +109,6 @@ const EditQuotation = () => {
     }));
     setItem({ description: "", unit: 1, unitPrice: "" });
   };
-  
-  
 
   const removeItem = (index) => {
     setQuotationData((prev) => ({
@@ -117,7 +118,8 @@ const EditQuotation = () => {
   };
 
   const updateItem = (index, updatedItem) => {
-    const calculatedAmount = updatedItem.unit * parseFloat(updatedItem.unitPrice || 0);
+    const calculatedAmount =
+      updatedItem.unit * parseFloat(updatedItem.unitPrice || 0);
     setQuotationData((prev) => ({
       ...prev,
       items: prev.items.map((itm, i) =>
@@ -125,7 +127,6 @@ const EditQuotation = () => {
       ),
     }));
   };
-  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -138,10 +139,10 @@ const EditQuotation = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-  
+
     const toISOString = (dateString) =>
       dateString ? new Date(dateString).toISOString() : null;
-  
+
     const updatedQuotationData = {
       ...quotationData,
       documentDate: toISOString(quotationData.documentDate),
@@ -152,12 +153,16 @@ const EditQuotation = () => {
         amount: item.unit * parseFloat(item.unitPrice || 0),
       })),
     };
-  
+
     try {
       const token = localStorage.getItem("token");
-      await axios.patch(`http://localhost:5000/api/quotations/${id}`, updatedQuotationData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.patch(
+        `http://localhost:5000/api/quotations/${id}`,
+        updatedQuotationData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       alert("Quotation updated successfully!");
       navigate("/quotations");
     } catch (err) {
@@ -165,15 +170,37 @@ const EditQuotation = () => {
       alert("Failed to update quotation.");
     }
   };
-  
-  
 
   const handlePreview = async () => {
-    const blob = await pdf(<QuotationPreview quotationData={quotationData} />).toBlob();
+    const totalBeforeFee = quotationData.items.reduce(
+      (sum, itm) => sum + (itm.unit || 0) * (parseFloat(itm.unitPrice) || 0),
+      0
+    );
+
+    const feeAmount = totalBeforeFee * (quotationData.fee / 100);
+    const discount = quotationData.discount || 0;
+    const amountBeforeTax = totalBeforeFee + feeAmount - discount;
+    const vat = amountBeforeTax * 0.07; // VAT 7%
+    const netAmount = amountBeforeTax + vat;
+
+    const updatedQuotationData = {
+      ...quotationData,
+      totalBeforeFee,
+      amountBeforeTax,
+      vat,
+      netAmount,
+    };
+
+    const blob = await pdf(
+      <QuotationPreview quotationData={updatedQuotationData} />
+    ).toBlob();
     const url = URL.createObjectURL(blob);
+
     const newTab = window.open();
     if (newTab) {
-      newTab.document.write(`<iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>`);
+      newTab.document.write(
+        `<iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>`
+      );
     }
   };
 

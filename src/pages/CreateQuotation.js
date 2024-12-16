@@ -54,7 +54,9 @@ const CreateQuotation = () => {
       0
     );
     const netAmount =
-      totalBeforeFee - quotationData.discount + totalBeforeFee * (quotationData.fee / 100);
+      totalBeforeFee -
+      quotationData.discount +
+      totalBeforeFee * (quotationData.fee / 100);
     setQuotationData((prev) => ({ ...prev, totalBeforeFee, netAmount }));
   }, [quotationData.items, quotationData.discount, quotationData.fee]);
 
@@ -115,11 +117,39 @@ const CreateQuotation = () => {
   };
 
   const handlePreview = async () => {
-    const blob = await pdf(<QuotationPreview quotationData={quotationData} />).toBlob();
+    // คำนวณข้อมูลล่าสุดก่อน Preview
+    const totalBeforeFee = quotationData.items.reduce(
+      (sum, itm) => sum + itm.unit * itm.unitPrice,
+      0
+    );
+    const feeAmount = totalBeforeFee * (quotationData.fee / 100);
+    const totalAfterFee = totalBeforeFee + feeAmount;
+    const amountBeforeTax = totalAfterFee - quotationData.discount;
+    const vat = amountBeforeTax * 0.07; // คำนวณ VAT 7%
+    const netAmount = amountBeforeTax + vat;
+
+    // อัปเดตข้อมูลทั้งหมด
+    const updatedQuotationData = {
+      ...quotationData,
+      totalBeforeFee,
+      feeAmount,
+      total: totalAfterFee,
+      amountBeforeTax,
+      vat,
+      netAmount,
+    };
+
+    // แสดง Preview ด้วยข้อมูลที่คำนวณใหม่
+    const blob = await pdf(
+      <QuotationPreview quotationData={updatedQuotationData} />
+    ).toBlob();
+
     const url = URL.createObjectURL(blob);
     const newTab = window.open();
     if (newTab) {
-      newTab.document.write(`<iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>`);
+      newTab.document.write(
+        `<iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>`
+      );
     }
   };
 
