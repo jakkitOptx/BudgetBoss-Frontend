@@ -5,6 +5,7 @@ import CreateQuotationForm from "../components/CreateQuotationForm";
 import ItemsForm from "../components/ItemsForm";
 import QuotationPreview from "../components/QuotationPreview";
 import { pdf } from "@react-pdf/renderer"; // สำหรับการสร้าง Blob
+import bankAccounts from "../data/bankAccounts.json"; // โหลดข้อมูลธนาคาร
 
 const EditQuotation = () => {
   const { id } = useParams();
@@ -173,6 +174,15 @@ const EditQuotation = () => {
   };
 
   const handlePreview = async () => {
+    
+     // ดึงข้อมูล user จาก localStorage
+     const user = JSON.parse(localStorage.getItem("user")) || {};
+     const company = user.company || "";
+ 
+     // ดึงข้อมูลธนาคารจาก JSON ตาม company
+     const bankInfo = bankAccounts.companies[company] || {};
+
+      // อัพเดทข้อมูล Quotation
     const totalBeforeFee = quotationData.items.reduce(
       (sum, itm) => sum + (itm.unit || 0) * (parseFloat(itm.unitPrice) || 0),
       0
@@ -192,7 +202,7 @@ const EditQuotation = () => {
     };
 
     const blob = await pdf(
-      <QuotationPreview quotationData={updatedQuotationData} />
+      <QuotationPreview quotationData={updatedQuotationData} bankInfo={bankInfo} />
     ).toBlob();
     const url = URL.createObjectURL(blob);
     window.open(url, "_blank");

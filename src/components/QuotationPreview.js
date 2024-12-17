@@ -136,15 +136,13 @@ const styles = StyleSheet.create({
   },
 });
 
-const QuotationPreview = ({ quotationData }) => {
+const QuotationPreview = ({ quotationData, bankInfo }) => {
   const renderHeader = () => {
     const user = JSON.parse(localStorage.getItem("user")) || {};
-    const email = user.username || "";
-    const domain = email.split("@")[1]?.split(".")[0] || "";
-    const companyName =
-      domain === "neonworks" ? "NEON" : domain === "optx" ? "OPTX" : "UNKNOWN";
+    const companyName = user.company?.toUpperCase() || "UNKNOWN";
     const year = new Date(quotationData.documentDate).getFullYear();
     const documentNo = `${companyName}(${quotationData.type})-${year}-${quotationData.runNumber}`;
+
 
     return (
       <View style={styles.header}>
@@ -216,45 +214,19 @@ const QuotationPreview = ({ quotationData }) => {
         {/* Remark */}
         <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Remark</Text>
         <Text>{quotationData.remark || "-"}</Text>
-
-        {/* เส้นแบ่ง */}
-        <View
-          style={{
-            borderTopWidth: 1,
-            borderStyle: "solid",
-            marginVertical: 5,
-          }}
-        ></View>
-
-        {/* Payment Details */}
+        <View style={{ borderTopWidth: 1, borderStyle: "solid", marginVertical: 5 }}></View>
         <Text style={{ fontWeight: "bold" }}>รายละเอียดการชำระเงิน</Text>
         <Text>Payment Details</Text>
         <Text>- ระยะเวลา Credit Term {quotationData.CreditTerm || 0} วัน</Text>
-
-        {/* เส้นแบ่งอีกครั้ง */}
-        <View
-          style={{
-            borderTopWidth: 1,
-            borderStyle: "solid",
-            marginVertical: 5,
-          }}
-        ></View>
-
-        {/* ข้อมูลธนาคาร */}
-        <Text style={{ fontWeight: "bold" }}>
-          You can transfer to owner account:
-        </Text>
-        <Text>ACCOUNT OWNER : NEON WORKS CO., LTD.</Text>
-        <Text>ACCOUNT NO : 163-3-74676-8</Text>
-        <Text>ACCOUNT TYPE : SAVING ACCOUNT</Text>
-        <Text>BANK NAME : KASIKORNBANK</Text>
-        <Text>BRANCH NAME : SI WARA TOWN IN TOWN</Text>
-        <Text>BANK ADDRESS : 1327 Soi Lat Phrao 94 (Pancha Mit)</Text>
-        <Text>
-          {" "}
-          Khwang Wang Thong Lang, Khet Wang Thong Lang, Bangkok 10310
-        </Text>
-        <Text>SWIFT CODE : KASITHBK</Text>
+        <View style={{ borderTopWidth: 1, borderStyle: "solid", marginVertical: 5 }}></View>
+        <Text style={{ fontWeight: "bold" }}>You can transfer to owner account:</Text>
+        <Text>ACCOUNT OWNER : {bankInfo.accountOwner || "-"}</Text>
+        <Text>ACCOUNT NO : {bankInfo.accountNo || "-"}</Text>
+        <Text>ACCOUNT TYPE : {bankInfo.accountType || "-"}</Text>
+        <Text>BANK NAME : {bankInfo.bankName || "-"}</Text>
+        <Text>BRANCH NAME : {bankInfo.branchName || "-"}</Text>
+        <Text>BANK ADDRESS : {bankInfo.bankAddress || "-"}</Text>
+        <Text>SWIFT CODE : {bankInfo.swiftCode || "-"}</Text>
       </View>
 
       {/* ช่อง Summary */}
