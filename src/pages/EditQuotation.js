@@ -29,6 +29,7 @@ const EditQuotation = () => {
     createdByUser: "",
     totalBeforeFee: 0,
     netAmount: 0,
+    remark: "", // เพิ่มฟิลด์ remark ตรงนี้
   });
 
   const [item, setItem] = useState({
@@ -176,26 +177,26 @@ const EditQuotation = () => {
       (sum, itm) => sum + (itm.unit || 0) * (parseFloat(itm.unitPrice) || 0),
       0
     );
-
-    const feeAmount = totalBeforeFee * (quotationData.fee / 100);
+  
+    const feeAmount = (totalBeforeFee * (quotationData.fee / 100)).toFixed(2); // ตัดทศนิยม 2 ตำแหน่ง
     const discount = quotationData.discount || 0;
-    const amountBeforeTax = totalBeforeFee + feeAmount - discount;
-    const vat = amountBeforeTax * 0.07; // VAT 7%
-    const netAmount = amountBeforeTax + vat;
-
+    const amountBeforeTax = (totalBeforeFee + parseFloat(feeAmount) - discount).toFixed(2); // ตัดทศนิยม 2 ตำแหน่ง
+    const vat = (amountBeforeTax * 0.07).toFixed(2); // คำนวณ VAT และตัดทศนิยม 2 ตำแหน่ง
+    const netAmount = (parseFloat(amountBeforeTax) + parseFloat(vat)).toFixed(2);
+  
     const updatedQuotationData = {
       ...quotationData,
-      totalBeforeFee,
-      amountBeforeTax,
-      vat,
-      netAmount,
+      totalBeforeFee: parseFloat(totalBeforeFee.toFixed(2)), // ตัดทศนิยม 2 ตำแหน่ง
+      amountBeforeTax: parseFloat(amountBeforeTax),
+      vat: parseFloat(vat),
+      netAmount: parseFloat(netAmount),
     };
-
+  
     const blob = await pdf(
       <QuotationPreview quotationData={updatedQuotationData} />
     ).toBlob();
     const url = URL.createObjectURL(blob);
-
+  
     const newTab = window.open();
     if (newTab) {
       newTab.document.write(
@@ -203,6 +204,7 @@ const EditQuotation = () => {
       );
     }
   };
+  
 
   if (loading) {
     return <p className="text-center mt-4 text-gray-500">Loading...</p>;

@@ -211,11 +211,53 @@ const QuotationPreview = ({ quotationData }) => {
 
   const renderSummaryAndPaymentDetails = () => (
     <View style={styles.summaryContainer}>
+      {/* ช่อง Payment Details */}
       <View style={styles.paymentDetails}>
-        <Text style={{ fontWeight: "bold" }}>รายละเอียดการชำระเงินน</Text>
+        {/* Remark */}
+        <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Remark</Text>
+        <Text>{quotationData.remark || "-"}</Text>
+
+        {/* เส้นแบ่ง */}
+        <View
+          style={{
+            borderTopWidth: 1,
+            borderStyle: "solid",
+            marginVertical: 5,
+          }}
+        ></View>
+
+        {/* Payment Details */}
+        <Text style={{ fontWeight: "bold" }}>รายละเอียดการชำระเงิน</Text>
         <Text>Payment Details</Text>
         <Text>- ระยะเวลา Credit Term {quotationData.CreditTerm || 0} วัน</Text>
+
+        {/* เส้นแบ่งอีกครั้ง */}
+        <View
+          style={{
+            borderTopWidth: 1,
+            borderStyle: "solid",
+            marginVertical: 5,
+          }}
+        ></View>
+
+        {/* ข้อมูลธนาคาร */}
+        <Text style={{ fontWeight: "bold" }}>
+          You can transfer to owner account:
+        </Text>
+        <Text>ACCOUNT OWNER : NEON WORKS CO., LTD.</Text>
+        <Text>ACCOUNT NO : 163-3-74676-8</Text>
+        <Text>ACCOUNT TYPE : SAVING ACCOUNT</Text>
+        <Text>BANK NAME : KASIKORNBANK</Text>
+        <Text>BRANCH NAME : SI WARA TOWN IN TOWN</Text>
+        <Text>BANK ADDRESS : 1327 Soi Lat Phrao 94 (Pancha Mit)</Text>
+        <Text>
+          {" "}
+          Khwang Wang Thong Lang, Khet Wang Thong Lang, Bangkok 10310
+        </Text>
+        <Text>SWIFT CODE : KASITHBK</Text>
       </View>
+
+      {/* ช่อง Summary */}
       <View style={styles.summary}>
         <View style={styles.summaryRow}>
           <Text>Total Before Fee:</Text>
@@ -259,7 +301,9 @@ const QuotationPreview = ({ quotationData }) => {
         <View style={styles.summaryRow}>
           <Text>Amount Before Tax:</Text>
           <Text>
-            {(quotationData.amountBeforeTax || 0).toLocaleString("th-TH", {
+            {parseFloat(
+              (quotationData.amountBeforeTax || 0).toFixed(2)
+            ).toLocaleString("th-TH", {
               style: "decimal",
               minimumFractionDigits: 2,
             })}
@@ -268,16 +312,21 @@ const QuotationPreview = ({ quotationData }) => {
         <View style={styles.summaryRow}>
           <Text>VAT (7%):</Text>
           <Text>
-            {(quotationData.vat || 0).toLocaleString("th-TH", {
-              style: "decimal",
-              minimumFractionDigits: 2,
-            })}
+            {parseFloat((quotationData.vat || 0).toFixed(2)).toLocaleString(
+              "th-TH",
+              {
+                style: "decimal",
+                minimumFractionDigits: 2,
+              }
+            )}
           </Text>
         </View>
         <View style={styles.summaryRowLast}>
           <Text>Net Amount:</Text>
           <Text>
-            {(quotationData.netAmount || 0).toLocaleString("th-TH", {
+            {parseFloat(
+              (quotationData.netAmount || 0).toFixed(2)
+            ).toLocaleString("th-TH", {
               style: "decimal",
               minimumFractionDigits: 2,
             })}

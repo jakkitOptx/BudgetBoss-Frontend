@@ -28,6 +28,7 @@ const CreateQuotation = () => {
     createdByUser: "",
     totalBeforeFee: 0,
     netAmount: 0,
+    remark: "", // เพิ่มฟิลด์ remark ตรงนี้
   });
 
   const [item, setItem] = useState({
