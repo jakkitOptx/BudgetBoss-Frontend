@@ -15,12 +15,13 @@ Font.register({
 const styles = StyleSheet.create({
   page: {
     padding: 30,
-    fontSize: 10,
+    fontSize: 8,
     fontFamily: "Prompt",
   },
   header: {
     marginBottom: 10,
     textAlign: "left",
+    fontSize: 8,
   },
   section: {
     marginBottom: 20,
@@ -31,6 +32,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderStyle: "solid",
     marginTop: 0,
+    fontSize: 8,
   },
   tableRow: {
     flexDirection: "row",
@@ -43,6 +45,7 @@ const styles = StyleSheet.create({
     padding: 3,
     fontWeight: "bold",
     backgroundColor: "#f0f0f0",
+    fontSize: 8,
   },
   tableColHeaderDesc: {
     flexGrow: 1, // ขยายใหญ่เท่าที่จำเป็น
@@ -53,6 +56,7 @@ const styles = StyleSheet.create({
     padding: 3,
     fontWeight: "bold",
     backgroundColor: "#f0f0f0",
+    fontSize: 8,
   },
   tableColHeader: {
     width: "16%", // ช่อง Units, Unit Price และ Amount เท่ากัน
@@ -62,6 +66,7 @@ const styles = StyleSheet.create({
     padding: 3,
     fontWeight: "bold",
     backgroundColor: "#f0f0f0",
+    fontSize: 8,
   },
   tableColNo: {
     width: "8%", // ช่อง No. เล็กลง
@@ -69,6 +74,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     textAlign: "center",
     padding: 3,
+    fontSize: 8,
   },
   tableColDesc: {
     flexGrow: 1, // ช่อง Description ขยายเต็มที่
@@ -77,6 +83,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     textAlign: "left",
     padding: 3,
+    fontSize: 8,
   },
   tableCol: {
     width: "16%", // ช่อง Units, Unit Price และ Amount เท่ากัน
@@ -85,6 +92,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     padding: 3,
     minHeight: 25,
+    fontSize: 8,
   },
   summaryContainer: {
     flexDirection: "row",
@@ -92,6 +100,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderWidth: 1,
     borderStyle: "solid",
+    fontSize: 8,
   },
   paymentDetails: {
     width: "50%",
@@ -99,21 +108,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f8f8",
     borderRightWidth: 1,
     borderStyle: "solid",
+    fontSize: 8,
   },
   summary: {
     width: "50%",
     padding: 10,
+    fontSize: 8,
   },
   summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     borderBottomWidth: 1,
     padding: 5,
+    fontSize: 8,
   },
   summaryRowLast: {
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 5,
+    fontSize: 8,
   },
   characterAmount: {
     textAlign: "left",
@@ -122,17 +135,20 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderStyle: "solid",
     paddingTop: 5,
+    fontSize: 8,
   },
   signatureSection: {
     marginTop: 80,
     flexDirection: "row",
     justifyContent: "space-between",
+    fontSize: 8,
   },
   signatureBlock: {
     textAlign: "center",
     width: "30%",
     borderTopWidth: 1,
     borderStyle: "solid",
+    fontSize: 8,
   },
 });
 
@@ -149,17 +165,15 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
 
   const finalBankInfo = { ...defaultBankInfo, ...bankInfo };
 
-
   const renderHeader = () => {
     const user = JSON.parse(localStorage.getItem("user")) || {};
     const companyName = user.company?.toUpperCase() || "UNKNOWN";
     const year = new Date(quotationData.documentDate).getFullYear();
     const documentNo = `${companyName}(${quotationData.type})-${year}-${quotationData.runNumber}`;
 
-
     return (
       <View style={styles.header}>
-        <Text style={{ fontSize: 16, fontWeight: "bold" }}>Quotation</Text>
+        <Text style={{ fontSize: 12, fontWeight: "bold" }}>Quotation</Text>
         <View style={styles.section}>
           <Text>Document No: {documentNo}</Text>
           <Text>
@@ -227,19 +241,46 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
         {/* Remark */}
         <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Remark</Text>
         <Text>{quotationData.remark || "-"}</Text>
-        <View style={{ borderTopWidth: 1, borderStyle: "solid", marginVertical: 5 }}></View>
-        <Text style={{ fontWeight: "bold" }}>รายละเอียดการชำระเงิน</Text>
+        <View
+          style={{ borderTopWidth: 1, borderStyle: "solid", marginVertical: 5 }}
+        ></View>
+        <Text style={{ fontWeight: "bold" }}>รายละเอียดการชำระเงิน :</Text>
         <Text>Payment Details</Text>
         <Text>- ระยะเวลา Credit Term {quotationData.CreditTerm || 0} วัน</Text>
-        <View style={{ borderTopWidth: 1, borderStyle: "solid", marginVertical: 5 }}></View>
-        <Text style={{ fontWeight: "bold" }}>You can transfer to owner account:</Text>
-        <Text>ACCOUNT OWNER : {finalBankInfo.accountOwner || "-"}</Text>
-        <Text>ACCOUNT NO : {finalBankInfo.accountNo || "-"}</Text>
-        <Text>ACCOUNT TYPE : {finalBankInfo.accountType || "-"}</Text>
-        <Text>BANK NAME : {finalBankInfo.bankName || "-"}</Text>
-        <Text>BRANCH NAME : {finalBankInfo.branchName || "-"}</Text>
-        <Text>BANK ADDRESS : {finalBankInfo.bankAddress || "-"}</Text>
-        <Text>SWIFT CODE : {finalBankInfo.swiftCode || "-"}</Text>
+        <View
+          style={{ borderTopWidth: 1, borderStyle: "solid", marginVertical: 5 }}
+        ></View>
+        <Text style={{ fontWeight: "bold" }}>
+          You can transfer to owner account:
+        </Text>
+        <Text>
+          <Text style={{ fontWeight: "bold" }}>ACCOUNT OWNER : </Text>
+          <Text>{finalBankInfo.accountOwner || "-"}</Text>
+        </Text>
+        <Text>
+          <Text style={{ fontWeight: "bold" }}>ACCOUNT NO : </Text>
+          <Text>{finalBankInfo.accountNo || "-"}</Text>
+        </Text>
+        <Text>
+          <Text style={{ fontWeight: "bold" }}>ACCOUNT TYPE : </Text>
+          <Text>{finalBankInfo.accountType || "-"}</Text>
+        </Text>
+        <Text>
+          <Text style={{ fontWeight: "bold" }}>BANK NAME : </Text>
+          <Text>{finalBankInfo.bankName || "-"}</Text>
+        </Text>
+        <Text>
+          <Text style={{ fontWeight: "bold" }}>BRANCH NAME : </Text>
+          <Text>{finalBankInfo.branchName || "-"}</Text>
+        </Text>
+        <Text>
+          <Text style={{ fontWeight: "bold" }}>BANK ADDRESS : </Text>
+          <Text>{finalBankInfo.bankAddress || "-"}</Text>
+        </Text>
+        <Text>
+          <Text style={{ fontWeight: "bold" }}>SWIFT CODE : </Text>
+          <Text>{finalBankInfo.swiftCode || "-"}</Text>
+        </Text>
       </View>
 
       {/* ช่อง Summary */}
