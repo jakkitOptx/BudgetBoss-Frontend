@@ -1,0 +1,22 @@
+{
+  "companies": {
+    "Neon": {
+      "accountOwner": "NEON WORKS CO., LTD.",
+      "accountNo": "163-3-74676-8",
+      "accountType": "SAVING ACCOUNT",
+      "bankName": "KASIKORNBANK",
+      "branchName": "SI WARA TOWN IN TOWN",
+      "bankAddress": "1327 Soi Lat Phrao 94 (Pancha Mit), Khwang Wang Thong Lang, Khet Wang Thong Lang, Bangkok 10310",
+      "swiftCode": "KASITHBK"
+    },
+    "Optx": {
+      "accountOwner": "OPTX CO., LTD.",
+      "accountNo": "176-3-54288-9",
+      "accountType": "SAVING ACCOUNT",
+      "bankName": "KASIKORNBANK",
+      "branchName": "SI WARA TOWN IN TOWN",
+      "bankAddress": "1327 Soi Lat Phrao 94 (Pancha Mit), Khwang Wang Thong Lang, Khet Wang Thong Lang, Bangkok 10310",
+      "swiftCode": "KASITHBK"
+    }
+  }
+}

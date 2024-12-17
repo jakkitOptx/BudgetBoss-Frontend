@@ -29,7 +29,7 @@ const EditQuotation = () => {
     createdByUser: "",
     totalBeforeFee: 0,
     netAmount: 0,
-    remark: "", // เพิ่มฟิลด์ remark ตรงนี้
+    remark: "",
   });
 
   const [item, setItem] = useState({
@@ -40,7 +40,7 @@ const EditQuotation = () => {
 
   const [loading, setLoading] = useState(true);
 
-  // โหลดข้อมูล Quotation จาก API
+  // โหลดข้อมูลจาก API
   useEffect(() => {
     const fetchQuotation = async () => {
       try {
@@ -54,18 +54,17 @@ const EditQuotation = () => {
 
         const data = response.data;
 
-        // แปลงวันที่ให้เป็น yyyy-MM-dd
         const formatDate = (isoDate) => (isoDate ? isoDate.split("T")[0] : "");
-
         setQuotationData({
           ...data,
           documentDate: formatDate(data.documentDate),
           startDate: formatDate(data.startDate),
           endDate: formatDate(data.endDate),
-          netAmount: data.netAmount || 0,
-          totalBeforeFee: data.totalBeforeFee || 0,
           items: data.items || [],
+          totalBeforeFee: data.totalBeforeFee || 0,
+          netAmount: data.netAmount || 0,
         });
+        
 
         setLoading(false);
       } catch (err) {
@@ -84,10 +83,13 @@ const EditQuotation = () => {
       0
     );
     const netAmount =
-      totalBeforeFee -
-      quotationData.discount +
-      totalBeforeFee * (quotationData.fee / 100);
-    setQuotationData((prev) => ({ ...prev, totalBeforeFee, netAmount }));
+      totalBeforeFee - quotationData.discount + totalBeforeFee * (quotationData.fee / 100);
+
+    setQuotationData((prev) => ({
+      ...prev,
+      totalBeforeFee: parseFloat(totalBeforeFee.toFixed(2)),
+      netAmount: parseFloat(netAmount.toFixed(2)),
+    }));
   }, [quotationData.items, quotationData.discount, quotationData.fee]);
 
   const handleItemChange = (field, value) => {
@@ -105,7 +107,7 @@ const EditQuotation = () => {
       ...prev,
       items: [
         ...prev.items,
-        { ...item, amount: calculatedAmount || 0 }, // เพิ่มการคำนวณ amount
+        { ...item, amount: calculatedAmount || 0 },
       ],
     }));
     setItem({ description: "", unit: 1, unitPrice: "" });
@@ -119,8 +121,7 @@ const EditQuotation = () => {
   };
 
   const updateItem = (index, updatedItem) => {
-    const calculatedAmount =
-      updatedItem.unit * parseFloat(updatedItem.unitPrice || 0);
+    const calculatedAmount = updatedItem.unit * parseFloat(updatedItem.unitPrice || 0);
     setQuotationData((prev) => ({
       ...prev,
       items: prev.items.map((itm, i) =>
@@ -140,7 +141,6 @@ const EditQuotation = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-
     const toISOString = (dateString) =>
       dateString ? new Date(dateString).toISOString() : null;
 
@@ -177,38 +177,28 @@ const EditQuotation = () => {
       (sum, itm) => sum + (itm.unit || 0) * (parseFloat(itm.unitPrice) || 0),
       0
     );
-  
-    const feeAmount = (totalBeforeFee * (quotationData.fee / 100)).toFixed(2); // ตัดทศนิยม 2 ตำแหน่ง
+    const feeAmount = (totalBeforeFee * (quotationData.fee / 100)).toFixed(2);
     const discount = quotationData.discount || 0;
-    const amountBeforeTax = (totalBeforeFee + parseFloat(feeAmount) - discount).toFixed(2); // ตัดทศนิยม 2 ตำแหน่ง
-    const vat = (amountBeforeTax * 0.07).toFixed(2); // คำนวณ VAT และตัดทศนิยม 2 ตำแหน่ง
+    const amountBeforeTax = (totalBeforeFee + parseFloat(feeAmount) - discount).toFixed(2);
+    const vat = (amountBeforeTax * 0.07).toFixed(2);
     const netAmount = (parseFloat(amountBeforeTax) + parseFloat(vat)).toFixed(2);
-  
+
     const updatedQuotationData = {
       ...quotationData,
-      totalBeforeFee: parseFloat(totalBeforeFee.toFixed(2)), // ตัดทศนิยม 2 ตำแหน่ง
+      totalBeforeFee: parseFloat(totalBeforeFee.toFixed(2)),
       amountBeforeTax: parseFloat(amountBeforeTax),
       vat: parseFloat(vat),
       netAmount: parseFloat(netAmount),
     };
-  
+
     const blob = await pdf(
       <QuotationPreview quotationData={updatedQuotationData} />
     ).toBlob();
     const url = URL.createObjectURL(blob);
-  
-    const newTab = window.open();
-    if (newTab) {
-      newTab.document.write(
-        `<iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>`
-      );
-    }
+    window.open(url, "_blank");
   };
-  
 
-  if (loading) {
-    return <p className="text-center mt-4 text-gray-500">Loading...</p>;
-  }
+  if (loading) return <p className="text-center mt-4 text-gray-500">Loading...</p>;
 
   return (
     <div className="p-6">
@@ -218,7 +208,7 @@ const EditQuotation = () => {
           quotationData={quotationData}
           handleChange={handleChange}
           setQuotationData={setQuotationData}
-        />
+          />
         <ItemsForm
           items={quotationData.items}
           item={item}
