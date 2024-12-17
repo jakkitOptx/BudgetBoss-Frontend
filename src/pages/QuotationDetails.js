@@ -5,32 +5,47 @@ import axios from "axios";
 import { pdf } from "@react-pdf/renderer";
 import QuotationPreview from "../components/QuotationPreview";
 import { FaFilePdf } from "react-icons/fa";
+import bankAccounts from "../data/bankAccounts.json";
 
 const handleDownloadPDF = async (quotation) => {
-  // ดึงข้อมูล username จาก localStorage
-  const user = JSON.parse(localStorage.getItem("user")) || {};
-  const email = user.username || "";
-  const domain = email.split("@")[1]?.split(".")[0] || "";
+  try {
+    const user = JSON.parse(localStorage.getItem("user")) || {};
+    const company = user.company || "";
+    const email = user.username || "";
+    const domain = email.split("@")[1]?.split(".")[0] || "";
+    const companyName =
+      domain === "neonworks" ? "NEON" : domain === "optx" ? "OPTX" : "UNKNOWN";
 
-  // ตรวจสอบชื่อบริษัท
-  const companyName =
-    domain === "neonworks" ? "NEON" : domain === "optx" ? "OPTX" : "UNKNOWN";
+    // ดึงข้อมูล bankInfo ตาม company
+    const bankInfo = bankAccounts.companies?.[company] || {
+      accountOwner: "N/A",
+      accountNo: "N/A",
+      accountType: "N/A",
+      bankName: "N/A",
+      branchName: "N/A",
+      bankAddress: "N/A",
+      swiftCode: "N/A",
+    };
 
-  // ดึงปีที่ออกเอกสาร
-  const year = new Date(quotation.documentDate).getFullYear();
+    const year = new Date(quotation.documentDate).getFullYear();
+    const documentNo = `${companyName}(${quotation.type})-${year}-${quotation.runNumber}`;
+    const fileName = `${documentNo} - ${quotation.projectName}.pdf`;
 
-  // สร้างชื่อเอกสาร
-  const documentNo = `${companyName}(${quotation.type})-${year}-${quotation.runNumber}`;
-  const fileName = `${documentNo} - ${quotation.projectName}.pdf`;
+    // สร้าง PDF Blob และดาวน์โหลดไฟล์
+    const blob = await pdf(
+      <QuotationPreview quotationData={quotation} bankInfo={bankInfo} />
+    ).toBlob();
+    const url = URL.createObjectURL(blob);
 
-  // สร้าง PDF Blob และดาวน์โหลดไฟล์
-  const blob = await pdf(<QuotationPreview quotationData={quotation} />).toBlob();
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  link.click();
-  URL.revokeObjectURL(url);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    alert("Failed to generate PDF.");
+  }
 };
 
 const QuotationDetails = () => {

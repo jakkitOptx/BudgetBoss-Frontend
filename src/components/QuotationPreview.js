@@ -137,6 +137,19 @@ const styles = StyleSheet.create({
 });
 
 const QuotationPreview = ({ quotationData, bankInfo }) => {
+  const defaultBankInfo = {
+    accountOwner: "N/A",
+    accountNo: "N/A",
+    accountType: "N/A",
+    bankName: "N/A",
+    branchName: "N/A",
+    bankAddress: "N/A",
+    swiftCode: "N/A",
+  };
+
+  const finalBankInfo = { ...defaultBankInfo, ...bankInfo };
+
+
   const renderHeader = () => {
     const user = JSON.parse(localStorage.getItem("user")) || {};
     const companyName = user.company?.toUpperCase() || "UNKNOWN";
@@ -220,13 +233,13 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
         <Text>- ระยะเวลา Credit Term {quotationData.CreditTerm || 0} วัน</Text>
         <View style={{ borderTopWidth: 1, borderStyle: "solid", marginVertical: 5 }}></View>
         <Text style={{ fontWeight: "bold" }}>You can transfer to owner account:</Text>
-        <Text>ACCOUNT OWNER : {bankInfo.accountOwner || "-"}</Text>
-        <Text>ACCOUNT NO : {bankInfo.accountNo || "-"}</Text>
-        <Text>ACCOUNT TYPE : {bankInfo.accountType || "-"}</Text>
-        <Text>BANK NAME : {bankInfo.bankName || "-"}</Text>
-        <Text>BRANCH NAME : {bankInfo.branchName || "-"}</Text>
-        <Text>BANK ADDRESS : {bankInfo.bankAddress || "-"}</Text>
-        <Text>SWIFT CODE : {bankInfo.swiftCode || "-"}</Text>
+        <Text>ACCOUNT OWNER : {finalBankInfo.accountOwner || "-"}</Text>
+        <Text>ACCOUNT NO : {finalBankInfo.accountNo || "-"}</Text>
+        <Text>ACCOUNT TYPE : {finalBankInfo.accountType || "-"}</Text>
+        <Text>BANK NAME : {finalBankInfo.bankName || "-"}</Text>
+        <Text>BRANCH NAME : {finalBankInfo.branchName || "-"}</Text>
+        <Text>BANK ADDRESS : {finalBankInfo.bankAddress || "-"}</Text>
+        <Text>SWIFT CODE : {finalBankInfo.swiftCode || "-"}</Text>
       </View>
 
       {/* ช่อง Summary */}
