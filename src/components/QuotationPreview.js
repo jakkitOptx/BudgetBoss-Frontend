@@ -372,14 +372,29 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
 
   const renderSignature = () => (
     <View style={styles.signatureSection}>
+      {/* ช่องลายเซ็น Customer */}
       <View style={styles.signatureBlock}>
-        <Text>Customer</Text>
+        <Text style={{ fontWeight: "bold" }}>Customer</Text>
+        <Text style={{ marginTop: 10, width: "100%", textAlign: "center" }}>
+          (____________________________________)
+        </Text>
+        <Text style={{ marginTop: 10 }}>วันที่/Date ............./............./.............</Text>
       </View>
+      {/* ช่องลายเซ็น Created by */}
       <View style={styles.signatureBlock}>
-        <Text>Created by</Text>
+        <Text style={{ fontWeight: "bold" }}>Created by</Text>
+        <Text style={{ marginTop: 10, width: "100%", textAlign: "center" }}>
+          (____________________________________)
+        </Text>
+        <Text style={{ marginTop: 10 }}>วันที่/Date ............./............./.............</Text>
       </View>
+      {/* ช่องลายเซ็น Proposed by */}
       <View style={styles.signatureBlock}>
-        <Text>Proposed by</Text>
+        <Text style={{ fontWeight: "bold" }}>Proposed by</Text>
+        <Text style={{ marginTop: 10, width: "100%", textAlign: "center" }}>
+          (____________________________________)
+        </Text>
+        <Text style={{ marginTop: 10 }}>วันที่/Date ............./............./.............</Text>
       </View>
     </View>
   );
