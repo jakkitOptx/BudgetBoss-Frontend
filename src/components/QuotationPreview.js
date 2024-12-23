@@ -24,8 +24,28 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
     swiftCode: "N/A",
   };
 
-  const finalBankInfo = { ...defaultBankInfo, ...bankInfo };
+  // ส่วนหัวใบเสนอราคา
+  const renderTitle = () => (
+    <Text style={styles.headerTitle}>ใบเสนอราคา{"\n"}QUOTATION</Text>
+  );
 
+  const renderProjectDetails = () => {
+    return (
+      <View style={styles.projectDetailsContainer}>
+        <View style={styles.projectDetail}>
+          <Text style={styles.projectLabel}>ชื่อโครงการ{"\n"}Project Name</Text>
+          <Text style={styles.projectValue}>{quotationData.projectName || "-"}</Text>
+        </View>
+        <View style={styles.projectDetail}>
+          <Text style={styles.projectLabel}>วันที่จัดงาน{"\n"}Project Run</Text>
+          <Text style={styles.projectValue}>{quotationData.period || "-"}</Text>
+        </View>
+      </View>
+    );
+  };
+
+  const finalBankInfo = { ...defaultBankInfo, ...bankInfo };
+  // รายละเอียดเอกสาร
   const renderHeader = () => {
     const user = JSON.parse(localStorage.getItem("user")) || {};
     const companyName = user.company?.toUpperCase() || "UNKNOWN";
@@ -34,17 +54,25 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
 
     return (
       <View style={styles.header}>
-        <Text style={{ fontSize: 12, fontWeight: "bold" }}>Quotation</Text>
-        <View style={styles.section}>
-          <Text>Document No: {documentNo}</Text>
-          <Text>
-            Document Date:{" "}
-            {new Date(quotationData.documentDate).toLocaleDateString("th-TH")}
-          </Text>
-          <Text>Salesperson: {quotationData.salePerson}</Text>
-          <Text>Project Name: {quotationData.projectName}</Text>
-          <Text>Project Run: {quotationData.period}</Text>
-          <Text>Customer Name: {quotationData.client}</Text>
+        {/* ใช้ flex: 1 เพื่อเว้นพื้นที่ซ้าย */}
+        <View style={{ flex: 1 }} />
+
+        {/* รายละเอียดเอกสาร */}
+        <View style={styles.headerDetailsContainer}>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>เลขที่เอกสาร{"\n"}Document No. :</Text>
+            <Text style={styles.value}>{documentNo}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>วันที่เอกสาร{"\n"}Document Date :</Text>
+            <Text style={styles.value}>
+              {new Date(quotationData.documentDate).toLocaleDateString("th-TH")}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>พนักงานขาย{"\n"}Salesperson :</Text>
+            <Text style={styles.value}>{quotationData.salePerson || "-"}</Text>
+          </View>
         </View>
       </View>
     );
@@ -78,17 +106,17 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
         <Text style={styles.tableCol}>
           {item.unitPrice
             ? parseFloat(item.unitPrice).toLocaleString("th-TH", {
-                style: "decimal",
-                minimumFractionDigits: 2,
-              })
+              style: "decimal",
+              minimumFractionDigits: 2,
+            })
             : ""}
         </Text>
         <Text style={styles.tableCol}>
           {item.unit && item.unitPrice
             ? (item.unit * item.unitPrice).toLocaleString("th-TH", {
-                style: "decimal",
-                minimumFractionDigits: 2,
-              })
+              style: "decimal",
+              minimumFractionDigits: 2,
+            })
             : ""}
         </Text>
       </View>
@@ -260,7 +288,10 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        {renderTitle()}
         {renderHeader()}
+        {/* แสดงรายละเอียดโครงการและวันที่ */}
+        {renderProjectDetails()}
         <View style={styles.itemsTable}>
           {renderTableHeader()}
           {renderItems(quotationData.items.slice(0, 27), 0)}
@@ -281,6 +312,7 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
         </Page>
       )}
     </Document>
+
   );
 };
 

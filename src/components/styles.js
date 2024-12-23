@@ -7,9 +7,76 @@ export const styles = StyleSheet.create({
     fontFamily: "Prompt",
   },
   header: {
-    marginBottom: 10,
-    textAlign: "left",
+    flexDirection: "row", // จัดเรียงในแนวนอน
+    justifyContent: "space-between", // เพิ่มระยะห่างระหว่าง title กับ details
+    alignItems: "flex-start", // จัดให้อยู่ด้านบนสุด
+    marginBottom: 20,
+    borderBottomWidth: 2,
+    borderBottomColor: "#4A3F7D",
+    paddingBottom: 10,
+  },
+  headerTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#4A3F7D",
+    textAlign: "right", // จัดให้อยู่ชิดขวา
+    flex: 1,
+  },
+  headerDetailsContainer: {
+    width: "30%", // ลดขนาดความกว้างของรายละเอียดเอกสาร
+    flexDirection: "column", // จัดเรียงในแนวตั้ง
+    alignItems: "flex-end", // ชิดขวา
+  },
+  detailRow: {
+    flexDirection: "row", // จัดข้อความในแนวนอน
+    alignItems: "center",
+    marginBottom: 3,
+  },
+  label: {
+    fontSize: 7,
+    fontWeight: "bold",
+    color: "#4A3F7D",
+    textAlign: "right",
+    width: "45%",
+    marginRight: 5,
+  },
+  value: {
     fontSize: 8,
+    fontWeight: "bold",
+    color: "#000000",
+    textAlign: "center",
+    backgroundColor: "#EAEAEA",
+    padding: 3,
+    borderWidth: 1,
+    borderColor: "#4A3F7D",
+    width: "50%",
+  },
+  projectDetailsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+    paddingBottom: 10,
+  },
+  projectDetail: {
+    flex: 1,
+    paddingHorizontal: 10,
+  },
+  projectLabel: {
+    fontSize: 8,
+    fontWeight: "bold",
+    color: "#4A3F7D",
+    textAlign: "left",
+    marginBottom: 5,
+  },
+  projectValue: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: "#000000",
+    textAlign: "left",
+    borderBottomWidth: 1,
+    borderBottomColor: "#000000",
+    paddingBottom: 5,
   },
   section: {
     marginBottom: 20,
