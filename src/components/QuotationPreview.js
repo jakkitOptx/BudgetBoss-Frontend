@@ -1,7 +1,8 @@
 import React from "react";
-import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
+import { Page, Text, View, Document } from "@react-pdf/renderer";
 import { Font } from "@react-pdf/renderer";
 import ThaiBaht from "thai-baht-text";
+import { styles } from "./styles";
 
 // ลงทะเบียนฟอนต์ภาษาไทย
 Font.register({
@@ -10,146 +11,6 @@ Font.register({
     { src: "/fonts/Prompt-Regular.ttf" }, // Regular font
     { src: "/fonts/Prompt-Bold.ttf", fontWeight: "bold" }, // Bold font
   ],
-});
-
-const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-    fontSize: 8,
-    fontFamily: "Prompt",
-  },
-  header: {
-    marginBottom: 10,
-    textAlign: "left",
-    fontSize: 8,
-  },
-  section: {
-    marginBottom: 20,
-  },
-  itemsTable: {
-    display: "table",
-    width: "100%",
-    borderWidth: 1,
-    borderStyle: "solid",
-    marginTop: 0,
-    fontSize: 8,
-  },
-  tableRow: {
-    flexDirection: "row",
-  },
-  tableColHeaderNo: {
-    width: "8%", // ช่อง No. เล็กลง
-    borderStyle: "solid",
-    borderWidth: 1,
-    textAlign: "center",
-    padding: 3,
-    fontWeight: "bold",
-    backgroundColor: "#f0f0f0",
-    fontSize: 8,
-  },
-  tableColHeaderDesc: {
-    flexGrow: 1, // ขยายใหญ่เท่าที่จำเป็น
-    flexShrink: 1,
-    borderStyle: "solid",
-    borderWidth: 1,
-    textAlign: "left",
-    padding: 3,
-    fontWeight: "bold",
-    backgroundColor: "#f0f0f0",
-    fontSize: 8,
-  },
-  tableColHeader: {
-    width: "16%", // ช่อง Units, Unit Price และ Amount เท่ากัน
-    borderStyle: "solid",
-    borderWidth: 1,
-    textAlign: "center",
-    padding: 3,
-    fontWeight: "bold",
-    backgroundColor: "#f0f0f0",
-    fontSize: 8,
-  },
-  tableColNo: {
-    width: "8%", // ช่อง No. เล็กลง
-    borderStyle: "solid",
-    borderWidth: 1,
-    textAlign: "center",
-    padding: 3,
-    fontSize: 8,
-  },
-  tableColDesc: {
-    flexGrow: 1, // ช่อง Description ขยายเต็มที่
-    flexShrink: 1,
-    borderStyle: "solid",
-    borderWidth: 1,
-    textAlign: "left",
-    padding: 3,
-    fontSize: 8,
-  },
-  tableCol: {
-    width: "16%", // ช่อง Units, Unit Price และ Amount เท่ากัน
-    borderStyle: "solid",
-    borderWidth: 1,
-    textAlign: "center",
-    padding: 3,
-    minHeight: 25,
-    fontSize: 8,
-  },
-  summaryContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-    borderWidth: 1,
-    borderStyle: "solid",
-    fontSize: 8,
-  },
-  paymentDetails: {
-    width: "50%",
-    padding: 10,
-    backgroundColor: "#f8f8f8",
-    borderRightWidth: 1,
-    borderStyle: "solid",
-    fontSize: 8,
-  },
-  summary: {
-    width: "50%",
-    padding: 10,
-    fontSize: 8,
-  },
-  summaryRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    padding: 5,
-    fontSize: 8,
-  },
-  summaryRowLast: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 5,
-    fontSize: 8,
-  },
-  characterAmount: {
-    textAlign: "left",
-    fontWeight: "bold",
-    marginTop: 10,
-    borderTopWidth: 1,
-    borderStyle: "solid",
-    paddingTop: 5,
-    fontSize: 8,
-  },
-  signatureSection: {
-    marginTop: 80,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    fontSize: 8,
-  },
-  signatureBlock: {
-    textAlign: "center",
-    width: "30%",
-    borderTopWidth: 1,
-    borderStyle: "solid",
-    fontSize: 8,
-  },
 });
 
 const QuotationPreview = ({ quotationData, bankInfo }) => {
@@ -236,9 +97,7 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
 
   const renderSummaryAndPaymentDetails = () => (
     <View style={styles.summaryContainer}>
-      {/* ช่อง Payment Details */}
       <View style={styles.paymentDetails}>
-        {/* Remark */}
         <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Remark</Text>
         <Text>{quotationData.remark || "-"}</Text>
         <View
@@ -282,7 +141,6 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
           <Text>{finalBankInfo.swiftCode || "-"}</Text>
         </Text>
       </View>
-
       {/* ช่อง Summary */}
       <View style={styles.summary}>
         <View style={styles.summaryRow}>
