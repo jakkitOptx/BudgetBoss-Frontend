@@ -22,34 +22,39 @@ export const styles = StyleSheet.create({
     textAlign: "right", // จัดให้อยู่ชิดขวา
     flex: 1,
   },
+  clientDetailsContainer: {
+    width: "50%", // ใช้พื้นที่ครึ่งหนึ่งของหน้า
+    flexDirection: "column", // เรียงข้อมูลในแนวตั้ง
+    paddingRight: 10, // เพิ่มระยะห่างขวา
+  },
   headerDetailsContainer: {
-    width: "30%", // ลดขนาดความกว้างของรายละเอียดเอกสาร
-    flexDirection: "column", // จัดเรียงในแนวตั้ง
-    alignItems: "flex-end", // ชิดขวา
+    width: "50%", // ใช้พื้นที่อีกครึ่งหนึ่งของหน้า
+    flexDirection: "column", // เรียงข้อมูลในแนวตั้ง
+    alignItems: "flex-end", // จัดข้อความชิดขวา
   },
   detailRow: {
-    flexDirection: "row", // จัดข้อความในแนวนอน
-    alignItems: "center",
-    marginBottom: 3,
+    flexDirection: "row", // เรียงข้อความในแนวนอน
+    justifyContent: "space-between", // แบ่งพื้นที่เท่าๆ กัน
+    marginBottom: 3, // ระยะห่างระหว่างแถว
   },
   label: {
     fontSize: 7,
     fontWeight: "bold",
     color: "#4A3F7D",
+    width: "40%", // ครอบคลุมพื้นที่ 40% ของแถว
     textAlign: "right",
-    width: "45%",
     marginRight: 5,
   },
   value: {
     fontSize: 8,
     fontWeight: "bold",
     color: "#000000",
-    textAlign: "center",
+    textAlign: "left",
     backgroundColor: "#EAEAEA",
     padding: 3,
     borderWidth: 1,
     borderColor: "#4A3F7D",
-    width: "50%",
+    width: "55%", // ครอบคลุมพื้นที่ 55% ของแถว
   },
   projectDetailsContainer: {
     flexDirection: "row",
@@ -205,4 +210,5 @@ export const styles = StyleSheet.create({
     borderStyle: "solid",
     fontSize: 8,
   },
+
 });

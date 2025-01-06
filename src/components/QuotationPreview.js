@@ -46,37 +46,86 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
 
   const finalBankInfo = { ...defaultBankInfo, ...bankInfo };
   // รายละเอียดเอกสาร
+  // const renderHeader = () => {
+  //   const user = JSON.parse(localStorage.getItem("user")) || {};
+  //   const companyName = user.company?.toUpperCase() || "UNKNOWN";
+  //   const year = new Date(quotationData.documentDate).getFullYear();
+  //   const documentNo = `${companyName}(${quotationData.type})-${year}-${quotationData.runNumber}`;
+
+  //   return (
+  //     <View style={styles.header}>
+  //       {/* ใช้ flex: 1 เพื่อเว้นพื้นที่ซ้าย */}
+  //       <View style={{ flex: 1 }} />
+
+  //       {/* รายละเอียดเอกสาร */}
+  //       <View style={styles.headerDetailsContainer}>
+  //         <View style={styles.detailRow}>
+  //           <Text style={styles.label}>เลขที่เอกสาร{"\n"}Document No. :</Text>
+  //           <Text style={styles.value}>{documentNo}</Text>
+  //         </View>
+  //         <View style={styles.detailRow}>
+  //           <Text style={styles.label}>วันที่เอกสาร{"\n"}Document Date :</Text>
+  //           <Text style={styles.value}>
+  //             {new Date(quotationData.documentDate).toLocaleDateString("th-TH")}
+  //           </Text>
+  //         </View>
+  //         <View style={styles.detailRow}>
+  //           <Text style={styles.label}>พนักงานขาย{"\n"}Salesperson :</Text>
+  //           <Text style={styles.value}>{quotationData.salePerson || "-"}</Text>
+  //         </View>
+  //       </View>
+  //     </View>
+  //   );
+  // };
   const renderHeader = () => {
     const user = JSON.parse(localStorage.getItem("user")) || {};
     const companyName = user.company?.toUpperCase() || "UNKNOWN";
     const year = new Date(quotationData.documentDate).getFullYear();
     const documentNo = `${companyName}(${quotationData.type})-${year}-${quotationData.runNumber}`;
-
+  
     return (
       <View style={styles.header}>
-        {/* ใช้ flex: 1 เพื่อเว้นพื้นที่ซ้าย */}
-        <View style={{ flex: 1 }} />
-
-        {/* รายละเอียดเอกสาร */}
+        {/* ฝั่งซ้ายแสดงข้อมูลลูกค้า */}
+        <View style={styles.clientDetailsContainer}>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Customer Name:</Text>
+            <Text style={styles.value}>{quotationData.clientDetails?.name || "N/A"}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Address:</Text>
+            <Text style={styles.value}>{quotationData.clientDetails?.address || "N/A"}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Tax ID:</Text>
+            <Text style={styles.value}>{quotationData.clientDetails?.taxId || "N/A"}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Contact:</Text>
+            <Text style={styles.value}>{quotationData.clientDetails?.contact || "N/A"}</Text>
+          </View>
+        </View>
+  
+        {/* ฝั่งขวาแสดงรายละเอียดเอกสาร */}
         <View style={styles.headerDetailsContainer}>
           <View style={styles.detailRow}>
-            <Text style={styles.label}>เลขที่เอกสาร{"\n"}Document No. :</Text>
+            <Text style={styles.label}>Document No.:</Text>
             <Text style={styles.value}>{documentNo}</Text>
           </View>
           <View style={styles.detailRow}>
-            <Text style={styles.label}>วันที่เอกสาร{"\n"}Document Date :</Text>
+            <Text style={styles.label}>Document Date:</Text>
             <Text style={styles.value}>
               {new Date(quotationData.documentDate).toLocaleDateString("th-TH")}
             </Text>
           </View>
           <View style={styles.detailRow}>
-            <Text style={styles.label}>พนักงานขาย{"\n"}Salesperson :</Text>
+            <Text style={styles.label}>Salesperson:</Text>
             <Text style={styles.value}>{quotationData.salePerson || "-"}</Text>
           </View>
         </View>
       </View>
     );
   };
+  
 
   const renderTableHeader = () => (
     <View style={styles.tableRow}>
