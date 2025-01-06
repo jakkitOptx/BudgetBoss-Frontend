@@ -1,10 +1,31 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const CreateQuotationForm = ({
   quotationData,
   setQuotationData,
   handleChange,
 }) => {
+  const [clients, setClients] = useState([]); // state สำหรับเก็บข้อมูลลูกค้า
+  const [loadingClients, setLoadingClients] = useState(false); // state สำหรับโหลดข้อมูลลูกค้า
+
+  // ดึงข้อมูลลูกค้าจาก API
+  useEffect(() => {
+    const fetchClients = async () => {
+      setLoadingClients(true);
+      try {
+        const response = await axios.get("http://localhost:5000/api/clients");
+        setClients(response.data); // บันทึกข้อมูลลูกค้าใน state
+      } catch (error) {
+        console.error("Error fetching clients:", error);
+      } finally {
+        setLoadingClients(false);
+      }
+    };
+
+    fetchClients();
+  }, []);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       {/* Title */}
@@ -24,15 +45,26 @@ const CreateQuotationForm = ({
       {/* Client */}
       <div>
         <label className="block mb-1 text-gray-600">Client</label>
-        <input
-          type="text"
-          name="client"
-          placeholder="Enter client name"
-          value={quotationData.client}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border rounded"
-          required
-        />
+        {loadingClients ? (
+          <p>Loading clients...</p>
+        ) : (
+          <select
+            name="client"
+            value={quotationData.client}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded"
+            required
+          >
+            <option value="" disabled>
+              Select a client
+            </option>
+            {clients.map((client) => (
+              <option key={client.id} value={client.id}>
+                {client.customerName}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Sale Person */}
