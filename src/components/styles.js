@@ -33,28 +33,26 @@ export const styles = StyleSheet.create({
     alignItems: "flex-end", // จัดข้อความชิดขวา
   },
   detailRow: {
-    flexDirection: "row", // เรียงข้อความในแนวนอน
-    justifyContent: "space-between", // แบ่งพื้นที่เท่าๆ กัน
-    marginBottom: 3, // ระยะห่างระหว่างแถว
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    marginBottom: 5,
   },
   label: {
-    fontSize: 7,
+    fontSize: 8,
     fontWeight: "bold",
     color: "#4A3F7D",
-    width: "40%", // ครอบคลุมพื้นที่ 40% ของแถว
-    textAlign: "right",
-    marginRight: 5,
+    width: "20%", // ลดความกว้างของ label เพื่อเพิ่มพื้นที่ให้ value
+    textAlign: "left",
   },
   value: {
     fontSize: 8,
-    fontWeight: "bold",
+    fontWeight: "normal",
     color: "#000000",
-    textAlign: "left",
-    backgroundColor: "#EAEAEA",
-    padding: 3,
-    borderWidth: 1,
-    borderColor: "#4A3F7D",
-    width: "55%", // ครอบคลุมพื้นที่ 55% ของแถว
+    width: "80%", // เพิ่มพื้นที่ให้ value
+    textAlign: "left", // จัดข้อความชิดซ้าย
+    borderBottomWidth: 1,
+    borderBottomColor: "#000000",
+    paddingLeft: 1, // เพิ่ม padding ซ้ายเพื่อให้ดูเรียบร้อย
   },
   projectDetailsContainer: {
     flexDirection: "row",
@@ -72,16 +70,16 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#4A3F7D",
     textAlign: "left",
-    marginBottom: 5,
+    marginBottom: 4,
   },
   projectValue: {
-    fontSize: 10,
-    fontWeight: "bold",
+    fontSize: 8,
+    fontWeight: "normal",
     color: "#000000",
     textAlign: "left",
     borderBottomWidth: 1,
     borderBottomColor: "#000000",
-    paddingBottom: 5,
+    paddingBottom: 4,
   },
   section: {
     marginBottom: 20,

@@ -118,40 +118,68 @@ const CreateQuotation = () => {
   };
 
   const handlePreview = async () => {
-    // คำนวณข้อมูลล่าสุดก่อน Preview
-    const totalBeforeFee = quotationData.items.reduce(
-      (sum, itm) => sum + itm.unit * itm.unitPrice,
-      0
-    );
-    const feeAmount = totalBeforeFee * (quotationData.fee / 100);
-    const totalAfterFee = totalBeforeFee + feeAmount;
-    const amountBeforeTax = totalAfterFee - quotationData.discount;
-    const vat = amountBeforeTax * 0.07; // คำนวณ VAT 7%
-    const netAmount = amountBeforeTax + vat;
-
-    // อัปเดตข้อมูลทั้งหมด
-    const updatedQuotationData = {
-      ...quotationData,
-      totalBeforeFee,
-      feeAmount,
-      total: totalAfterFee,
-      amountBeforeTax,
-      vat,
-      netAmount,
-    };
-
-    // แสดง Preview ด้วยข้อมูลที่คำนวณใหม่
-    const blob = await pdf(
-      <QuotationPreview quotationData={updatedQuotationData} />
-    ).toBlob();
-
-    const url = URL.createObjectURL(blob);
-    const newTab = window.open();
-    if (newTab) {
-      newTab.document.write(
-        `<iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>`
+    console.log("quotationData ==>", quotationData);
+  
+    try {
+      // ตรวจสอบว่า clientId มีค่าหรือไม่
+      if (!quotationData.clientId) {
+        alert("Please select a client before previewing.");
+        return;
+      }
+  
+      // คำนวณข้อมูลล่าสุดก่อน Preview
+      const totalBeforeFee = quotationData.items.reduce(
+        (sum, itm) => sum + itm.unit * itm.unitPrice,
+        0
       );
+      const feeAmount = totalBeforeFee * (quotationData.fee / 100);
+      const totalAfterFee = totalBeforeFee + feeAmount;
+      const amountBeforeTax = totalAfterFee - quotationData.discount;
+      const vat = amountBeforeTax * 0.07; // คำนวณ VAT 7%
+      const netAmount = amountBeforeTax + vat;
+  
+      // ดึงข้อมูลลูกค้าจาก API
+      const clientResponse = await axios.get(
+        `http://localhost:5000/api/clients/${quotationData.clientId}`
+      );
+      const clientDetails = clientResponse.data;
+  
+      // อัปเดตข้อมูลทั้งหมด
+      const updatedQuotationData = {
+        ...quotationData,
+        totalBeforeFee,
+        feeAmount,
+        total: totalAfterFee,
+        amountBeforeTax,
+        vat,
+        netAmount,
+        clientDetails, // รวมข้อมูลลูกค้าเข้าไปด้วย
+      };
+  
+      // แสดง Preview ด้วยข้อมูลที่คำนวณใหม่
+      const blob = await pdf(
+        <QuotationPreview quotationData={updatedQuotationData} />
+      ).toBlob();
+  
+      const url = URL.createObjectURL(blob);
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.write(
+          `<iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>`
+        );
+      }
+    } catch (error) {
+      console.error("Error generating preview:", error);
+      alert("Failed to generate preview.");
     }
+  };
+
+  const handleClientChange = (clientId, clientName) => {
+    setQuotationData((prev) => ({
+      ...prev,
+      clientId,
+      client: clientName,
+    }));
   };
 
   return (
@@ -162,6 +190,7 @@ const CreateQuotation = () => {
           quotationData={quotationData}
           handleChange={handleChange}
           setQuotationData={setQuotationData}
+          handleClientChange={handleClientChange}
         />
         <ItemsForm
           items={quotationData.items}

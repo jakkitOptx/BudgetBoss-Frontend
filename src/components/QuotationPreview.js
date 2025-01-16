@@ -34,7 +34,9 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
       <View style={styles.projectDetailsContainer}>
         <View style={styles.projectDetail}>
           <Text style={styles.projectLabel}>ชื่อโครงการ{"\n"}Project Name</Text>
-          <Text style={styles.projectValue}>{quotationData.projectName || "-"}</Text>
+          <Text style={styles.projectValue}>
+            {quotationData.projectName || "-"}
+          </Text>
         </View>
         <View style={styles.projectDetail}>
           <Text style={styles.projectLabel}>วันที่จัดงาน{"\n"}Project Run</Text>
@@ -46,32 +48,45 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
 
   const finalBankInfo = { ...defaultBankInfo, ...bankInfo };
   // รายละเอียดเอกสาร
+
   // const renderHeader = () => {
   //   const user = JSON.parse(localStorage.getItem("user")) || {};
   //   const companyName = user.company?.toUpperCase() || "UNKNOWN";
   //   const year = new Date(quotationData.documentDate).getFullYear();
   //   const documentNo = `${companyName}(${quotationData.type})-${year}-${quotationData.runNumber}`;
+  //   const { clientDetails } = quotationData;
 
   //   return (
   //     <View style={styles.header}>
-  //       {/* ใช้ flex: 1 เพื่อเว้นพื้นที่ซ้าย */}
   //       <View style={{ flex: 1 }} />
-
-  //       {/* รายละเอียดเอกสาร */}
   //       <View style={styles.headerDetailsContainer}>
   //         <View style={styles.detailRow}>
-  //           <Text style={styles.label}>เลขที่เอกสาร{"\n"}Document No. :</Text>
+  //           <Text style={styles.label}>Document No.:</Text>
   //           <Text style={styles.value}>{documentNo}</Text>
   //         </View>
   //         <View style={styles.detailRow}>
-  //           <Text style={styles.label}>วันที่เอกสาร{"\n"}Document Date :</Text>
+  //           <Text style={styles.label}>Document Date:</Text>
   //           <Text style={styles.value}>
   //             {new Date(quotationData.documentDate).toLocaleDateString("th-TH")}
   //           </Text>
   //         </View>
   //         <View style={styles.detailRow}>
-  //           <Text style={styles.label}>พนักงานขาย{"\n"}Salesperson :</Text>
-  //           <Text style={styles.value}>{quotationData.salePerson || "-"}</Text>
+  //           <Text style={styles.label}>Client Name:</Text>
+  //           <Text style={styles.value}>
+  //             {clientDetails?.customerName || "N/A"}
+  //           </Text>
+  //         </View>
+  //         <View style={styles.detailRow}>
+  //           <Text style={styles.label}>Client Address:</Text>
+  //           <Text style={styles.value}>
+  //             {clientDetails?.address || "N/A"}
+  //           </Text>
+  //         </View>
+  //         <View style={styles.detailRow}>
+  //           <Text style={styles.label}>Client Contact:</Text>
+  //           <Text style={styles.value}>
+  //             {clientDetails?.contact || "N/A"}
+  //           </Text>
   //         </View>
   //       </View>
   //     </View>
@@ -82,31 +97,44 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
     const companyName = user.company?.toUpperCase() || "UNKNOWN";
     const year = new Date(quotationData.documentDate).getFullYear();
     const documentNo = `${companyName}(${quotationData.type})-${year}-${quotationData.runNumber}`;
-  
+    const { clientDetails } = quotationData;
+
     return (
-      <View style={styles.header}>
-        {/* ฝั่งซ้ายแสดงข้อมูลลูกค้า */}
-        <View style={styles.clientDetailsContainer}>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginBottom: 20,
+        }}
+      >
+        {/* ฝั่งซ้าย: ข้อมูลลูกค้า */}
+        <View style={{ flex: 1 }}>
           <View style={styles.detailRow}>
             <Text style={styles.label}>Customer Name:</Text>
-            <Text style={styles.value}>{quotationData.clientDetails?.name || "N/A"}</Text>
+            <Text style={styles.value}>
+              {quotationData.clientDetails?.customerName || "N/A"}
+            </Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.label}>Address:</Text>
-            <Text style={styles.value}>{quotationData.clientDetails?.address || "N/A"}</Text>
+            <Text style={styles.value}>{clientDetails?.address || "N/A"}</Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.label}>Tax ID:</Text>
-            <Text style={styles.value}>{quotationData.clientDetails?.taxId || "N/A"}</Text>
+            <Text style={styles.value}>
+              {clientDetails?.taxIdentificationNumber || "N/A"}
+            </Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.label}>Contact:</Text>
-            <Text style={styles.value}>{quotationData.clientDetails?.contact || "N/A"}</Text>
+            <Text style={styles.value}>
+              {clientDetails?.contactPhoneNumber || "N/A"}
+            </Text>
           </View>
         </View>
-  
-        {/* ฝั่งขวาแสดงรายละเอียดเอกสาร */}
-        <View style={styles.headerDetailsContainer}>
+
+        {/* ฝั่งขวา: รายละเอียดเอกสาร */}
+        <View style={{ flex: 1, alignItems: "flex-end" }}>
           <View style={styles.detailRow}>
             <Text style={styles.label}>Document No.:</Text>
             <Text style={styles.value}>{documentNo}</Text>
@@ -119,13 +147,14 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.label}>Salesperson:</Text>
-            <Text style={styles.value}>{quotationData.salePerson || "-"}</Text>
+            <Text style={styles.value}>
+              {quotationData.salePerson || "N/A"}
+            </Text>
           </View>
         </View>
       </View>
     );
   };
-  
 
   const renderTableHeader = () => (
     <View style={styles.tableRow}>
@@ -155,17 +184,17 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
         <Text style={styles.tableCol}>
           {item.unitPrice
             ? parseFloat(item.unitPrice).toLocaleString("th-TH", {
-              style: "decimal",
-              minimumFractionDigits: 2,
-            })
+                style: "decimal",
+                minimumFractionDigits: 2,
+              })
             : ""}
         </Text>
         <Text style={styles.tableCol}>
           {item.unit && item.unitPrice
             ? (item.unit * item.unitPrice).toLocaleString("th-TH", {
-              style: "decimal",
-              minimumFractionDigits: 2,
-            })
+                style: "decimal",
+                minimumFractionDigits: 2,
+              })
             : ""}
         </Text>
       </View>
@@ -313,7 +342,9 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
         <Text style={{ marginTop: 10, width: "100%", textAlign: "center" }}>
           (____________________________________)
         </Text>
-        <Text style={{ marginTop: 10 }}>วันที่/Date ............./............./.............</Text>
+        <Text style={{ marginTop: 10 }}>
+          วันที่/Date ............./............./.............
+        </Text>
       </View>
       {/* ช่องลายเซ็น Created by */}
       <View style={styles.signatureBlock}>
@@ -321,7 +352,9 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
         <Text style={{ marginTop: 10, width: "100%", textAlign: "center" }}>
           (____________________________________)
         </Text>
-        <Text style={{ marginTop: 10 }}>วันที่/Date ............./............./.............</Text>
+        <Text style={{ marginTop: 10 }}>
+          วันที่/Date ............./............./.............
+        </Text>
       </View>
       {/* ช่องลายเซ็น Proposed by */}
       <View style={styles.signatureBlock}>
@@ -329,7 +362,9 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
         <Text style={{ marginTop: 10, width: "100%", textAlign: "center" }}>
           (____________________________________)
         </Text>
-        <Text style={{ marginTop: 10 }}>วันที่/Date ............./............./.............</Text>
+        <Text style={{ marginTop: 10 }}>
+          วันที่/Date ............./............./.............
+        </Text>
       </View>
     </View>
   );
@@ -361,7 +396,6 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
         </Page>
       )}
     </Document>
-
   );
 };
 
