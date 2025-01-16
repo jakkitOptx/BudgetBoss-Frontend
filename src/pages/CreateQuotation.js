@@ -14,6 +14,7 @@ const CreateQuotation = () => {
   const [quotationData, setQuotationData] = useState({
     title: "",
     client: "",
+    clientId : "",
     salePerson: "",
     documentDate: "",
     productName: "",

@@ -7,7 +7,7 @@ import QuotationPreview from "../components/QuotationPreview";
 import { FaFilePdf } from "react-icons/fa";
 import bankAccounts from "../data/bankAccounts.json";
 
-const handleDownloadPDF = async (quotation) => {
+const handleDownloadPDF = async (quotation, clientDetails) => {
   try {
     const user = JSON.parse(localStorage.getItem("user")) || {};
     const company = user.company || "";
@@ -16,7 +16,7 @@ const handleDownloadPDF = async (quotation) => {
     const companyName =
       domain === "neonworks" ? "NEON" : domain === "optx" ? "OPTX" : "UNKNOWN";
 
-    // ดึงข้อมูล bankInfo ตาม company
+    // Fetch bank information
     const bankInfo = bankAccounts.companies?.[company] || {
       accountOwner: "N/A",
       accountNo: "N/A",
@@ -31,10 +31,17 @@ const handleDownloadPDF = async (quotation) => {
     const documentNo = `${companyName}(${quotation.type})-${year}-${quotation.runNumber}`;
     const fileName = `${documentNo} - ${quotation.projectName}.pdf`;
 
-    // สร้าง PDF Blob และดาวน์โหลดไฟล์
+    // Add client details to the quotation data
+    const updatedQuotation = {
+      ...quotation,
+      clientDetails,
+    };
+
+    // Generate PDF Blob
     const blob = await pdf(
-      <QuotationPreview quotationData={quotation} bankInfo={bankInfo} />
+      <QuotationPreview quotationData={updatedQuotation} bankInfo={bankInfo} />
     ).toBlob();
+
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement("a");
@@ -49,24 +56,45 @@ const handleDownloadPDF = async (quotation) => {
 };
 
 const QuotationDetails = () => {
-  const { id } = useParams(); // ดึง `id` จาก URL Parameter
-  const [quotation, setQuotation] = useState(null); // เก็บข้อมูล Quotation
-  const [loading, setLoading] = useState(true); // สถานะ Loading
+  const { id } = useParams(); // Get `id` from URL Parameter
+  const [quotation, setQuotation] = useState(null); // Quotation data
+  const [clientDetails, setClientDetails] = useState(null); // Client details
+  const [loading, setLoading] = useState(true); // Loading status
 
-  // ดึงข้อมูลใบเสนอราคาจาก API
+  // Fetch Quotation and Client Details
   useEffect(() => {
     const fetchQuotationDetails = async () => {
       try {
-        const token = localStorage.getItem("token"); // ดึง Token จาก localStorage
+        const token = localStorage.getItem("token");
         const response = await axios.get(
           `http://localhost:5000/api/quotations/${id}`,
           {
             headers: {
-              Authorization: `Bearer ${token}`, // ส่ง Token ใน Header
+              Authorization: `Bearer ${token}`,
             },
           }
         );
-        setQuotation(response.data); // เก็บข้อมูลที่ได้
+
+        const data = response.data;
+        console.log("data quotations QuotationDetails ==>", data);
+
+        setQuotation(data);
+
+        // Fetch client details
+        if (data.clientId) {
+          const clientResponse = await axios.get(
+            `http://localhost:5000/api/clients/${data.clientId._id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          console.log("data clients QuotationDetails ==>", data);
+
+          setClientDetails(clientResponse.data);
+        }
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching quotation details:", error);
@@ -77,7 +105,7 @@ const QuotationDetails = () => {
     fetchQuotationDetails();
   }, [id]);
 
-  // หากกำลังโหลดข้อมูล
+  // If loading
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -86,7 +114,7 @@ const QuotationDetails = () => {
     );
   }
 
-  // หากไม่มีข้อมูล (กรณี ID ไม่ถูกต้อง)
+  // If no quotation data
   if (!quotation) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -100,18 +128,18 @@ const QuotationDetails = () => {
       <h1 className="text-3xl font-bold text-gray-800 mb-6">
         Quotation Details
       </h1>
-       {/* ปุ่ม Download PDF */}
+      {/* Download PDF Button */}
       <div className="flex justify-end mt-6 mb-6">
         <button
-          onClick={() => handleDownloadPDF(quotation)}
+          onClick={() => handleDownloadPDF(quotation, clientDetails)}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center gap-2"
         >
-          <FaFilePdf size={16} /> {/* เพิ่มไอคอน */}
+          <FaFilePdf size={16} /> {/* Icon */}
           Download PDF
         </button>
       </div>
 
-      {/* ข้อมูลพื้นฐาน */}
+      {/* Basic Information */}
       <div className="bg-white shadow rounded p-6 mb-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
           Basic Information
@@ -160,18 +188,6 @@ const QuotationDetails = () => {
               {quotation.approvalStatus}
             </span>
           </p>
-          {quotation.approvalStatus === "Canceled" && (
-            <>
-              <p>
-                <span className="font-bold">Reason:</span>{" "}
-                {quotation.reason || "N/A"}
-              </p>
-              <p>
-                <span className="font-bold">Canceled By:</span>{" "}
-                {quotation.canceledBy || "N/A"}
-              </p>
-            </>
-          )}
           <p>
             <span className="font-bold">Credit Term:</span>{" "}
             {quotation.CreditTerm ? `${quotation.CreditTerm} days` : "N/A"}
@@ -183,7 +199,7 @@ const QuotationDetails = () => {
         </div>
       </div>
 
-      {/* รายการสินค้า/บริการ */}
+      {/* Items Section */}
       <div className="bg-white shadow rounded p-6 mb-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Items</h2>
         {quotation.items && quotation.items.length > 0 ? (
@@ -225,7 +241,6 @@ const QuotationDetails = () => {
           <p className="text-gray-500">No items available.</p>
         )}
       </div>
-
       {/* สรุปยอดเงิน */}
       <div className="bg-gray-50 shadow rounded p-6 mt-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Summary</h2>
@@ -297,7 +312,6 @@ const QuotationDetails = () => {
           </p>
         </div>
       </div>
-     
     </div>
   );
 };

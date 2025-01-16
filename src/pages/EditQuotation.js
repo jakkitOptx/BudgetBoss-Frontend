@@ -52,14 +52,14 @@ const EditQuotation = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-
+  
         const data = response.data;
-
+  
         const formatDate = (isoDate) => (isoDate ? isoDate.split("T")[0] : "");
         setQuotationData({
           ...data,
-          clientId: data.clientId || "", // เพิ่ม clientId จาก API
-          client: data.client || "", // เพิ่ม client จาก API
+          clientId: data.clientId || "", // ดึง clientId จาก API
+          client: data.client || "", // ดึง client name จาก API
           documentDate: formatDate(data.documentDate),
           startDate: formatDate(data.startDate),
           endDate: formatDate(data.endDate),
@@ -67,17 +67,17 @@ const EditQuotation = () => {
           totalBeforeFee: data.totalBeforeFee || 0,
           netAmount: data.netAmount || 0,
         });
-        
-
+  
         setLoading(false);
       } catch (err) {
         console.error("Error fetching quotation:", err);
         setLoading(false);
       }
     };
-
+  
     fetchQuotation();
   }, [id]);
+  
 
   // คำนวณ Total และ Net Amount
   useEffect(() => {
@@ -176,13 +176,12 @@ const EditQuotation = () => {
   };
 
   const handlePreview = async () => {
+    console.log("quotationData => " , quotationData)
     try {
-      // ดึงข้อมูลธนาคารจาก JSON ตาม company
       const user = JSON.parse(localStorage.getItem("user")) || {};
       const company = user.company || "";
       const bankInfo = bankAccounts.companies[company] || {};
   
-      // คำนวณข้อมูล Quotation
       const totalBeforeFee = quotationData.items.reduce(
         (sum, itm) => sum + (itm.unit || 0) * (parseFloat(itm.unitPrice) || 0),
         0
@@ -192,36 +191,26 @@ const EditQuotation = () => {
       const amountBeforeTax = (totalBeforeFee + parseFloat(feeAmount) - discount).toFixed(2);
       const vat = (amountBeforeTax * 0.07).toFixed(2);
       const netAmount = (parseFloat(amountBeforeTax) + parseFloat(vat)).toFixed(2);
-      
-        // ตรวจสอบ clientId
-    if (!quotationData.clientId) {
-      alert("Please select a client before previewing.");
-      return;
-    }
   
-      // ดึงข้อมูล clientDetails จาก API
-      let clientDetails = null;
-      if (quotationData.client) {
-        const clientResponse = await axios.get(
-          `http://localhost:5000/api/clients/${quotationData.clientId}`
-        );
-        clientDetails = clientResponse.data;
-      } else {
+      if (!quotationData.clientId) {
         alert("Please select a client before previewing.");
         return;
       }
   
-      // อัปเดตข้อมูลทั้งหมด
+      const clientResponse = await axios.get(
+        `http://localhost:5000/api/clients/${quotationData.clientId._id}`
+      );
+      const clientDetails = clientResponse.data;
+  
       const updatedQuotationData = {
         ...quotationData,
         totalBeforeFee: parseFloat(totalBeforeFee.toFixed(2)),
         amountBeforeTax: parseFloat(amountBeforeTax),
         vat: parseFloat(vat),
         netAmount: parseFloat(netAmount),
-        clientDetails, // รวมข้อมูล clientDetails
+        clientDetails, // รวม clientDetails
       };
   
-      // แสดง Preview ด้วยข้อมูลที่คำนวณใหม่
       const blob = await pdf(
         <QuotationPreview quotationData={updatedQuotationData} bankInfo={bankInfo} />
       ).toBlob();
@@ -233,6 +222,7 @@ const EditQuotation = () => {
       alert("Failed to generate preview.");
     }
   };
+  
 
   const handleClientChange = (clientId, clientName) => {
     setQuotationData((prev) => ({

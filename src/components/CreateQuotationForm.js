@@ -5,7 +5,7 @@ const CreateQuotationForm = ({
   quotationData,
   setQuotationData,
   handleChange,
-  handleClientChange
+  handleClientChange,
 }) => {
   const [clients, setClients] = useState([]); // state สำหรับเก็บข้อมูลลูกค้า
   const [loadingClients, setLoadingClients] = useState(false); // state สำหรับโหลดข้อมูลลูกค้า
@@ -49,18 +49,39 @@ const CreateQuotationForm = ({
         {loadingClients ? (
           <p>Loading clients...</p>
         ) : (
+          // <select
+          //   name="clientId"
+          //   value={quotationData.clientId || ""}
+          //   onChange={(e) => {
+          //     const selectedClient = clients.find(
+          //       (client) => client._id === e.target.value
+          //     );
+          //     handleClientChange(
+          //       selectedClient?._id,
+          //       selectedClient?.customerName
+          //     ); // ส่งค่า clientId และ clientName กลับไป
+          //   }}
+          //   className="w-full px-4 py-2 border rounded"
+          //   required
+          // >
+          //   <option value="" disabled>
+          //     Select a client
+          //   </option>
+          //   {clients.map((client) => (
+          //     <option key={client._id} value={client._id}>
+          //       {client.customerName}
+          //     </option>
+          //   ))}
+          // </select>
           <select
-            name="clientId"
+            name="client"
             value={quotationData.clientId || ""}
-            onChange={(e) => {
-              const selectedClient = clients.find(
-                (client) => client._id === e.target.value
-              );
+            onChange={(e) =>
               handleClientChange(
-                selectedClient?._id,
-                selectedClient?.customerName
-              ); // ส่งค่า clientId และ clientName กลับไป
-            }}
+                e.target.value,
+                e.target.options[e.target.selectedIndex].text
+              )
+            }
             className="w-full px-4 py-2 border rounded"
             required
           >
