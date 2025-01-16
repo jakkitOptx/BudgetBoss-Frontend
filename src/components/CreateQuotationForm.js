@@ -74,8 +74,7 @@ const CreateQuotationForm = ({
           //   ))}
           // </select>
           <select
-            name="client"
-            value={quotationData.clientId || ""}
+            value={quotationData.clientId}
             onChange={(e) =>
               handleClientChange(
                 e.target.value,
@@ -85,9 +84,7 @@ const CreateQuotationForm = ({
             className="w-full px-4 py-2 border rounded"
             required
           >
-            <option value="" disabled>
-              Select a client
-            </option>
+            <option value="">Select Client</option>
             {clients.map((client) => (
               <option key={client._id} value={client._id}>
                 {client.customerName}

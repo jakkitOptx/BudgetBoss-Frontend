@@ -58,8 +58,8 @@ const EditQuotation = () => {
         const formatDate = (isoDate) => (isoDate ? isoDate.split("T")[0] : "");
         setQuotationData({
           ...data,
-          clientId: data.clientId || "", // ดึง clientId จาก API
-          client: data.client || "", // ดึง client name จาก API
+          clientId: data.clientId?._id || "", // ดึง clientId จาก API
+          client: data.clientId?.customerName || "", // ดึง client name จาก API
           documentDate: formatDate(data.documentDate),
           startDate: formatDate(data.startDate),
           endDate: formatDate(data.endDate),
@@ -77,6 +77,7 @@ const EditQuotation = () => {
   
     fetchQuotation();
   }, [id]);
+  
   
 
   // คำนวณ Total และ Net Amount
@@ -198,7 +199,7 @@ const EditQuotation = () => {
       }
   
       const clientResponse = await axios.get(
-        `http://localhost:5000/api/clients/${quotationData.clientId._id}`
+        `http://localhost:5000/api/clients/${quotationData.clientId}`
       );
       const clientDetails = clientResponse.data;
   
@@ -225,12 +226,18 @@ const EditQuotation = () => {
   
 
   const handleClientChange = (clientId, clientName) => {
+    if (!clientId || !clientName) {
+      console.error("Invalid client selection");
+      return;
+    }
+  
     setQuotationData((prev) => ({
       ...prev,
-      clientId,
-      client: clientName,
+      clientId, // อัปเดต clientId
+      client: clientName, // อัปเดต client name
     }));
   };
+  
   
   if (loading) return <p className="text-center mt-4 text-gray-500">Loading...</p>;
 
