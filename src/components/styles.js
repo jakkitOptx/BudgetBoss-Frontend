@@ -37,18 +37,22 @@ export const styles = StyleSheet.create({
     justifyContent: "flex-start",
     marginBottom: 5,
   },
+  detailRowProjectDetails: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+  },
   label: {
     fontSize: 8,
     fontWeight: "bold",
     color: "#4A3F7D",
-    width: "20%", // ลดความกว้างของ label เพื่อเพิ่มพื้นที่ให้ value
+    width: "30%", // ลดความกว้างของ label เพื่อเพิ่มพื้นที่ให้ value
     textAlign: "left",
   },
   value: {
     fontSize: 8,
     fontWeight: "normal",
     color: "#000000",
-    width: "80%", // เพิ่มพื้นที่ให้ value
+    width: "70%", // เพิ่มพื้นที่ให้ value
     textAlign: "left", // จัดข้อความชิดซ้าย
     borderBottomWidth: 1,
     borderBottomColor: "#000000",
