@@ -5,6 +5,8 @@ import CreateQuotationForm from "../components/CreateQuotationForm";
 import ItemsForm from "../components/ItemsForm";
 import QuotationPreview from "../components/QuotationPreview";
 import { pdf } from "@react-pdf/renderer"; // สำหรับการสร้าง Blob
+import bankAccounts from "../data/bankAccounts.json"; // โหลดข้อมูลธนาคาร
+
 
 const CreateQuotation = () => {
   const navigate = useNavigate();
@@ -119,6 +121,11 @@ const CreateQuotation = () => {
 
   const handlePreview = async () => {
     console.log("quotationData ==>", quotationData);
+
+    // ดึงข้อมูลธนาคารจาก JSON ตาม company
+    const user = JSON.parse(localStorage.getItem("user")) || {};
+    const company = user.company || "";
+    const bankInfo = bankAccounts.companies[company] || {};
   
     try {
       // ตรวจสอบว่า clientId มีค่าหรือไม่
@@ -158,7 +165,7 @@ const CreateQuotation = () => {
   
       // แสดง Preview ด้วยข้อมูลที่คำนวณใหม่
       const blob = await pdf(
-        <QuotationPreview quotationData={updatedQuotationData} />
+        <QuotationPreview quotationData={updatedQuotationData} bankInfo={bankInfo} />
       ).toBlob();
   
       const url = URL.createObjectURL(blob);
