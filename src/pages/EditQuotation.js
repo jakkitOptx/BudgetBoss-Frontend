@@ -58,6 +58,8 @@ const EditQuotation = () => {
         const formatDate = (isoDate) => (isoDate ? isoDate.split("T")[0] : "");
         setQuotationData({
           ...data,
+          clientId: data.clientId || "", // เพิ่ม clientId จาก API
+          client: data.client || "", // เพิ่ม client จาก API
           documentDate: formatDate(data.documentDate),
           startDate: formatDate(data.startDate),
           endDate: formatDate(data.endDate),
@@ -174,40 +176,72 @@ const EditQuotation = () => {
   };
 
   const handlePreview = async () => {
-    
-     // ดึงข้อมูล user จาก localStorage
-     const user = JSON.parse(localStorage.getItem("user")) || {};
-     const company = user.company || "";
- 
-     // ดึงข้อมูลธนาคารจาก JSON ตาม company
-     const bankInfo = bankAccounts.companies[company] || {};
-
-      // อัพเดทข้อมูล Quotation
-    const totalBeforeFee = quotationData.items.reduce(
-      (sum, itm) => sum + (itm.unit || 0) * (parseFloat(itm.unitPrice) || 0),
-      0
-    );
-    const feeAmount = (totalBeforeFee * (quotationData.fee / 100)).toFixed(2);
-    const discount = quotationData.discount || 0;
-    const amountBeforeTax = (totalBeforeFee + parseFloat(feeAmount) - discount).toFixed(2);
-    const vat = (amountBeforeTax * 0.07).toFixed(2);
-    const netAmount = (parseFloat(amountBeforeTax) + parseFloat(vat)).toFixed(2);
-
-    const updatedQuotationData = {
-      ...quotationData,
-      totalBeforeFee: parseFloat(totalBeforeFee.toFixed(2)),
-      amountBeforeTax: parseFloat(amountBeforeTax),
-      vat: parseFloat(vat),
-      netAmount: parseFloat(netAmount),
-    };
-
-    const blob = await pdf(
-      <QuotationPreview quotationData={updatedQuotationData} bankInfo={bankInfo} />
-    ).toBlob();
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
+    try {
+      // ดึงข้อมูลธนาคารจาก JSON ตาม company
+      const user = JSON.parse(localStorage.getItem("user")) || {};
+      const company = user.company || "";
+      const bankInfo = bankAccounts.companies[company] || {};
+  
+      // คำนวณข้อมูล Quotation
+      const totalBeforeFee = quotationData.items.reduce(
+        (sum, itm) => sum + (itm.unit || 0) * (parseFloat(itm.unitPrice) || 0),
+        0
+      );
+      const feeAmount = (totalBeforeFee * (quotationData.fee / 100)).toFixed(2);
+      const discount = quotationData.discount || 0;
+      const amountBeforeTax = (totalBeforeFee + parseFloat(feeAmount) - discount).toFixed(2);
+      const vat = (amountBeforeTax * 0.07).toFixed(2);
+      const netAmount = (parseFloat(amountBeforeTax) + parseFloat(vat)).toFixed(2);
+      
+        // ตรวจสอบ clientId
+    if (!quotationData.clientId) {
+      alert("Please select a client before previewing.");
+      return;
+    }
+  
+      // ดึงข้อมูล clientDetails จาก API
+      let clientDetails = null;
+      if (quotationData.client) {
+        const clientResponse = await axios.get(
+          `http://localhost:5000/api/clients/${quotationData.clientId}`
+        );
+        clientDetails = clientResponse.data;
+      } else {
+        alert("Please select a client before previewing.");
+        return;
+      }
+  
+      // อัปเดตข้อมูลทั้งหมด
+      const updatedQuotationData = {
+        ...quotationData,
+        totalBeforeFee: parseFloat(totalBeforeFee.toFixed(2)),
+        amountBeforeTax: parseFloat(amountBeforeTax),
+        vat: parseFloat(vat),
+        netAmount: parseFloat(netAmount),
+        clientDetails, // รวมข้อมูล clientDetails
+      };
+  
+      // แสดง Preview ด้วยข้อมูลที่คำนวณใหม่
+      const blob = await pdf(
+        <QuotationPreview quotationData={updatedQuotationData} bankInfo={bankInfo} />
+      ).toBlob();
+  
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Error generating preview:", error);
+      alert("Failed to generate preview.");
+    }
   };
 
+  const handleClientChange = (clientId, clientName) => {
+    setQuotationData((prev) => ({
+      ...prev,
+      clientId,
+      client: clientName,
+    }));
+  };
+  
   if (loading) return <p className="text-center mt-4 text-gray-500">Loading...</p>;
 
   return (
@@ -218,6 +252,7 @@ const EditQuotation = () => {
           quotationData={quotationData}
           handleChange={handleChange}
           setQuotationData={setQuotationData}
+          handleClientChange={handleClientChange}
           />
         <ItemsForm
           items={quotationData.items}
