@@ -54,6 +54,10 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
     const documentNo = `${companyName}(${quotationData.type})-${year}-${quotationData.runNumber}`;
     const { clientDetails } = quotationData;
     console.log("Customer Name:", quotationData.clientDetails?.customerName);
+    const addTrailingSpaces = (text, spacesCount = 2) => {
+      if (!text) return text; // หากไม่มีข้อความให้คืนค่าเดิม
+      return text + " ".repeat(spacesCount); // เพิ่ม space ตามจำนวนที่กำหนด
+    };
 
     return (
       <View style={styles.header}>
@@ -61,7 +65,13 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
         <View style={styles.clientDetailsContainer}>
           <View style={styles.detailRow}>
             <Text style={styles.label}>Customer Name:</Text>
-            <Text  style={styles.value}>{clientDetails?.customerName || "N/A"}</Text>
+            {/* <Text  style={styles.value}>{clientDetails?.customerName || "N/A"}</Text> */}
+            <Text style={styles.value}>
+              {addTrailingSpaces(
+                quotationData.clientDetails?.customerName || "N/A",
+                2
+              )}
+            </Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.label}>Address:</Text>
