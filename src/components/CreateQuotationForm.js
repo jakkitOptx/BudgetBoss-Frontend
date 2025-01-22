@@ -28,6 +28,18 @@ const CreateQuotationForm = ({
     fetchClients();
   }, []);
 
+   // ตั้งค่าลูกค้าเริ่มต้นเมื่อ clients และ clientId ถูกโหลด
+   useEffect(() => {
+    if (clients.length > 0 && quotationData.clientId) {
+      const selectedClient = clients.find(
+        (client) => client._id === quotationData.clientId
+      );
+      if (selectedClient) {
+        handleClientChange(selectedClient._id, selectedClient.customerName);
+      }
+    }
+  }, [clients, quotationData.clientId, handleClientChange]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       {/* Title */}
@@ -51,7 +63,7 @@ const CreateQuotationForm = ({
           <p>Loading clients...</p>
         ) : (
           <select
-            value={quotationData.clientId || quotationData.client}
+            value={quotationData.clientId || ""}
             onChange={(e) =>
               handleClientChange(
                 e.target.value,
