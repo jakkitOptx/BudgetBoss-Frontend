@@ -50,32 +50,8 @@ const CreateQuotationForm = ({
         {loadingClients ? (
           <p>Loading clients...</p>
         ) : (
-          // <select
-          //   name="clientId"
-          //   value={quotationData.clientId || ""}
-          //   onChange={(e) => {
-          //     const selectedClient = clients.find(
-          //       (client) => client._id === e.target.value
-          //     );
-          //     handleClientChange(
-          //       selectedClient?._id,
-          //       selectedClient?.customerName
-          //     ); // ส่งค่า clientId และ clientName กลับไป
-          //   }}
-          //   className="w-full px-4 py-2 border rounded"
-          //   required
-          // >
-          //   <option value="" disabled>
-          //     Select a client
-          //   </option>
-          //   {clients.map((client) => (
-          //     <option key={client._id} value={client._id}>
-          //       {client.customerName}
-          //     </option>
-          //   ))}
-          // </select>
           <select
-            value={quotationData.clientId}
+            value={quotationData.clientId || quotationData.client}
             onChange={(e) =>
               handleClientChange(
                 e.target.value,
@@ -269,7 +245,6 @@ const CreateQuotationForm = ({
             value={quotationData.discount || ""}
             onChange={handleChange}
             className="w-full px-4 py-2 border rounded"
-            required
           />
         </div>
 
