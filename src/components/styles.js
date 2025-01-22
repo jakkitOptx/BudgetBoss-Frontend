@@ -4,7 +4,7 @@ export const styles = StyleSheet.create({
   page: {
     padding: 30,
     fontSize: 8,
-    fontFamily: "Prompt",
+    fontFamily: "NotoSansThai",
   },
   header: {
     flexDirection: "row", // จัดเรียงในแนวนอน

@@ -179,7 +179,7 @@ const EditQuotation = () => {
   };
 
   const handlePreview = async () => {
-    console.log("quotationData => " , quotationData)
+    console.log("quotationData Edit => " , quotationData)
     try {
       const user = JSON.parse(localStorage.getItem("user")) || {};
       const company = user.company || "";
@@ -213,7 +213,6 @@ const EditQuotation = () => {
         netAmount: parseFloat(netAmount),
         clientDetails, // รวม clientDetails
       };
-  
       const blob = await pdf(
         <QuotationPreview quotationData={updatedQuotationData} bankInfo={bankInfo} />
       ).toBlob();

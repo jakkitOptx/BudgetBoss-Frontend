@@ -6,10 +6,10 @@ import { styles } from "./styles";
 
 // ลงทะเบียนฟอนต์ภาษาไทย
 Font.register({
-  family: "Prompt",
+  family: "NotoSansThai",
   fonts: [
-    { src: "/fonts/Prompt-Regular.ttf" }, // Regular font
-    { src: "/fonts/Prompt-Bold.ttf", fontWeight: "bold" }, // Bold font
+    { src: "/fonts/NotoSansThai-Regular.ttf" }, // Regular font
+    { src: "/fonts/NotoSansThai-Bold.ttf", fontWeight: "bold" }, // Bold font
   ],
 });
 
@@ -34,9 +34,7 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
       <View style={styles.projectDetailsContainer}>
         <View style={styles.detailRowProjectDetails}>
           <Text style={styles.label}>Project Name</Text>
-          <Text style={styles.value}>
-            {quotationData.projectName || "-"}
-          </Text>
+          <Text style={styles.value}>{quotationData.projectName || "-"}</Text>
         </View>
         <View style={styles.detailRowProjectDetails}>
           <Text style={styles.label}>Project Run</Text>
@@ -55,57 +53,62 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
     const year = new Date(quotationData.documentDate).getFullYear();
     const documentNo = `${companyName}(${quotationData.type})-${year}-${quotationData.runNumber}`;
     const { clientDetails } = quotationData;
+    console.log("Customer Name:", quotationData.clientDetails?.customerName);
 
     return (
-        <View style={styles.header}>
-            {/* ฝั่งซ้ายแสดงข้อมูลลูกค้า */}
-            <View style={styles.clientDetailsContainer}>
-                <View style={styles.detailRow}>
-                    <Text style={styles.label}>Customer Name:</Text>
-                    <Text style={styles.value}>{clientDetails?.customerName || "N/A"}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.label}>Address:</Text>
-                    <Text style={styles.value}>{clientDetails?.address || "N/A"}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.label}>Tax ID:</Text>
-                    <Text style={styles.value}>{clientDetails?.taxIdentificationNumber || "N/A"}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.label}>Contact:</Text>
-                    <Text style={styles.value}>{clientDetails?.contactPhoneNumber || "N/A"}</Text>
-                </View>
-                {/* <View style={styles.detailRow}>
+      <View style={styles.header}>
+        {/* ฝั่งซ้ายแสดงข้อมูลลูกค้า */}
+        <View style={styles.clientDetailsContainer}>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Customer Name:</Text>
+            <Text  style={styles.value}>{clientDetails?.customerName || "N/A"}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Address:</Text>
+            <Text style={styles.value}>{clientDetails?.address || "N/A"}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Tax ID:</Text>
+            <Text style={styles.value}>
+              {clientDetails?.taxIdentificationNumber || "N/A"}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Contact:</Text>
+            <Text style={styles.value}>
+              {clientDetails?.contactPhoneNumber || "N/A"}
+            </Text>
+          </View>
+          {/* <View style={styles.detailRow}>
                     <Text style={styles.label}>Project Name</Text>
                     <Text style={styles.value}>{ quotationData.projectName || "N/A"}</Text>
                 </View> */}
-            </View>
+        </View>
 
-            {/* ฝั่งขวาแสดงรายละเอียดเอกสาร */}
-            <View style={styles.headerDetailsContainer}>
-                <View style={styles.detailRow}>
-                    <Text style={styles.label}>Document No.:</Text>
-                    <Text style={styles.value}>{documentNo}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.label}>Document Date:</Text>
-                    <Text style={styles.value}>
-                        {new Date(quotationData.documentDate).toLocaleDateString("th-TH")}
-                    </Text>
-                </View>
-                <View style={styles.detailRow}>
-                    <Text style={styles.label}>Salesperson:</Text>
-                    <Text style={styles.value}>{quotationData.salePerson || "-"}</Text>
-                </View>
-                {/* <View style={styles.detailRow}>
+        {/* ฝั่งขวาแสดงรายละเอียดเอกสาร */}
+        <View style={styles.headerDetailsContainer}>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Document No.:</Text>
+            <Text style={styles.value}>{documentNo}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Document Date:</Text>
+            <Text style={styles.value}>
+              {new Date(quotationData.documentDate).toLocaleDateString("th-TH")}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Salesperson:</Text>
+            <Text style={styles.value}>{quotationData.salePerson || "-"}</Text>
+          </View>
+          {/* <View style={styles.detailRow}>
                     <Text style={styles.label}>Project Run:</Text>
                     <Text style={styles.value}>{quotationData.period || "-"}</Text>
                 </View> */}
-            </View>
         </View>
+      </View>
     );
-};
+  };
 
   const renderTableHeader = () => (
     <View style={styles.tableRow}>

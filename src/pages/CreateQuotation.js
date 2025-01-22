@@ -123,7 +123,7 @@ const CreateQuotation = () => {
   };
 
   const handlePreview = async () => {
-    console.log("quotationData ==>", quotationData);
+    console.log("quotationData Create ==>", quotationData);
 
     // ดึงข้อมูลธนาคารจาก JSON ตาม company
     const user = JSON.parse(localStorage.getItem("user")) || {};
