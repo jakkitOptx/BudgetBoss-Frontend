@@ -6,6 +6,8 @@ import ItemsForm from "../components/ItemsForm";
 import QuotationPreview from "../components/QuotationPreview";
 import { pdf } from "@react-pdf/renderer"; // สำหรับการสร้าง Blob
 import bankAccounts from "../data/bankAccounts.json"; // โหลดข้อมูลธนาคาร
+import { apiURL } from "../config/config"
+
 
 
 const CreateQuotation = () => {
@@ -107,7 +109,7 @@ const CreateQuotation = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:5000/api/quotations", quotationData, {
+      await axios.post(`${apiURL}quotations`, quotationData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -148,7 +150,7 @@ const CreateQuotation = () => {
   
       // ดึงข้อมูลลูกค้าจาก API
       const clientResponse = await axios.get(
-        `http://localhost:5000/api/clients/${quotationData.clientId}`
+        `${apiURL}clients/${quotationData.clientId}`
       );
       const clientDetails = clientResponse.data;
   

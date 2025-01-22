@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { apiURL } from "../config/config"
 
 const CreateQuotationForm = ({
   quotationData,
@@ -15,7 +16,7 @@ const CreateQuotationForm = ({
     const fetchClients = async () => {
       setLoadingClients(true);
       try {
-        const response = await axios.get("http://localhost:5000/api/clients");
+        const response = await axios.get(`${apiURL}clients`);
         setClients(response.data); // บันทึกข้อมูลลูกค้าใน state
       } catch (error) {
         console.error("Error fetching clients:", error);

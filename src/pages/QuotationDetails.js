@@ -6,6 +6,8 @@ import { pdf } from "@react-pdf/renderer";
 import QuotationPreview from "../components/QuotationPreview";
 import { FaFilePdf } from "react-icons/fa";
 import bankAccounts from "../data/bankAccounts.json";
+import { apiURL } from "../config/config";
+
 
 const handleDownloadPDF = async (quotation, clientDetails) => {
   try {
@@ -67,7 +69,7 @@ const QuotationDetails = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          `http://localhost:5000/api/quotations/${id}`,
+          `${apiURL}quotations/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -83,7 +85,7 @@ const QuotationDetails = () => {
         // Fetch client details
         if (data.clientId) {
           const clientResponse = await axios.get(
-            `http://localhost:5000/api/clients/${data.clientId._id}`,
+            `${apiURL}clients/${data.clientId._id}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,

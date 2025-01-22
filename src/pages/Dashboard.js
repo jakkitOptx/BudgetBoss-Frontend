@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import SummaryCard from "../components/SummaryCard";
 import QuotationTable from "../components/QuotationTable";
+import { apiURL } from "../config/config"
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -16,7 +17,7 @@ const Dashboard = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          "http://localhost:5000/api/quotations",
+          `${apiURL}quotations`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

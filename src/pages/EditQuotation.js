@@ -6,6 +6,8 @@ import ItemsForm from "../components/ItemsForm";
 import QuotationPreview from "../components/QuotationPreview";
 import { pdf } from "@react-pdf/renderer"; // สำหรับการสร้าง Blob
 import bankAccounts from "../data/bankAccounts.json"; // โหลดข้อมูลธนาคาร
+import { apiURL } from "../config/config"
+
 
 const EditQuotation = () => {
   const { id } = useParams();
@@ -47,7 +49,7 @@ const EditQuotation = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          `http://localhost:5000/api/quotations/${id}`,
+          `${apiURL}quotations/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -162,7 +164,7 @@ const EditQuotation = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.patch(
-        `http://localhost:5000/api/quotations/${id}`,
+        `${apiURL}quotations/${id}`,
         updatedQuotationData,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -199,7 +201,7 @@ const EditQuotation = () => {
       }
   
       const clientResponse = await axios.get(
-        `http://localhost:5000/api/clients/${quotationData.clientId}`
+        `${apiURL}clients/${quotationData.clientId}`
       );
       const clientDetails = clientResponse.data;
   

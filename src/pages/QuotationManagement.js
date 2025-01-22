@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
+import { apiURL } from "../config/config";
+
 
 const QuotationManagement = () => {
   const [quotations, setQuotations] = useState([]);
@@ -15,7 +17,7 @@ const QuotationManagement = () => {
       try {
         const token = localStorage.getItem("token"); // ดึง Token จาก localStorage
         const response = await axios.get(
-          "http://localhost:5000/api/quotations",
+          `${apiURL}quotations`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // ส่ง Token ใน Header
@@ -38,7 +40,7 @@ const QuotationManagement = () => {
     if (window.confirm("Are you sure you want to delete this quotation?")) {
       try {
         const token = localStorage.getItem("token");
-        await axios.delete(`http://localhost:5000/api/quotations/${id}`, {
+        await axios.delete(`${apiURL}quotations/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
