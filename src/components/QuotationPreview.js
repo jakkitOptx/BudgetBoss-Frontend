@@ -198,11 +198,11 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
         </Text>
       </View>
     ));
-  
+
     // ตรวจสอบกรณีที่เนื้อหาเกิน 40% แต่ไม่เกิน 70%
     const isSpacingRequired =
       !isContentBelowLimit(items) && !isContentExceedingLimit(items);
-  
+
     return (
       <>
         {renderedItems}
@@ -233,7 +233,6 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
       </>
     );
   };
-  
 
   const renderSummaryAndPaymentDetails = () => (
     <View style={styles.summaryContainer}>
@@ -403,53 +402,103 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
     </View>
   );
 
-  return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        {renderTitle()}
-        {renderHeader()}
-        {renderProjectDetails()}
-        <View style={styles.itemsTable}>
-          {renderTableHeader()}
-          {/* {renderItems(
-          quotationData.items,
-          0,
-          calculateMaxRowsPerPage().maxRowsFirstPage
-        )} */}
-          {renderItemsWithSpacing(
-            quotationData.items,
-            0,
-            calculateMaxRowsPerPage().maxRowsFirstPage
+  const footerHeight = 150; // ความสูงโดยประมาณของ Summary และ Signature
+  const isFooterExceedingPage = (items, rowsUsed) => {
+    const maxPageHeight = 842; // ความสูงของ A4 ใน pt
+    const headerHeight = 150; // ความสูงของส่วนหัวใน pt
+    const rowHeight = 20; // ความสูงเฉลี่ยของแต่ละแถวในตาราง
+    const contentHeight = headerHeight + rowsUsed * rowHeight;
+
+    return contentHeight + footerHeight > maxPageHeight; // ตรวจสอบว่าเกินหน้า A4 หรือไม่
+  };
+
+  const paginateItems = (items, maxRowsPerPage) => {
+    const pages = [];
+    let currentPage = [];
+
+    items.forEach((item, index) => {
+      if (currentPage.length >= maxRowsPerPage) {
+        pages.push(currentPage); // เพิ่มหน้าปัจจุบันเข้าไปใน pages
+        currentPage = []; // เริ่มหน้าใหม่
+      }
+      currentPage.push(item);
+    });
+
+    if (currentPage.length > 0) {
+      pages.push(currentPage); // เพิ่มหน้าสุดท้ายเข้าไปใน pages
+    }
+
+    return pages;
+  };
+
+  const renderPaginatedItems = (items) => {
+    const { maxRowsFirstPage, maxRowsOtherPages } = calculateMaxRowsPerPage();
+    const pages = paginateItems(items, maxRowsFirstPage, maxRowsOtherPages);
+  
+    let startIndex = 0;
+  
+    return pages.map((pageItems, pageIndex) => {
+      const currentPageStartIndex = startIndex;
+      startIndex += pageItems.length;
+  
+      // คำนวณพื้นที่เนื้อหาของหน้าปัจจุบัน
+      const contentHeight = pageItems.reduce((total, item) => {
+        return total + calculateRowHeight(item.description || "");
+      }, 0);
+  
+      const maxPageHeight = 842; // ความสูง A4
+      const contentLimit = maxPageHeight * 0.6; // ใช้ 60% ของความสูง A4
+      const shouldMoveToNextPage = contentHeight > contentLimit;
+  
+      return (
+        <Page size="A4" style={styles.page} key={pageIndex}>
+          {pageIndex === 0 && (
+            <>
+              {renderTitle()}
+              {renderHeader()}
+              {renderProjectDetails()}
+            </>
           )}
-        </View>
-        {/* หากเนื้อหาไม่เกิน 40% ให้แสดง Summary และ Signature ในหน้าแรก */}
-        {isContentBelowLimit(quotationData.items) && (
-          <>
-            {renderSummaryAndPaymentDetails()}
-            {renderCharacterAmount()}
-            {renderSignature()}
-          </>
-        )}
-      </Page>
-      {/* หากเนื้อหาเกิน 40% แต่ไม่เกิน 70% ให้แสดง Summary และ Signature ในหน้าที่ 2 */}
-      {!isContentBelowLimit(quotationData.items) &&
-        !isContentExceedingLimit(quotationData.items) && (
-          <Page size="A4" style={styles.page}>
-            {renderSummaryAndPaymentDetails()}
-            {renderCharacterAmount()}
-            {renderSignature()}
-          </Page>
-        )}
-      {/* หากเนื้อหาเกิน 70% ให้แสดง Summary และ Signature ในหน้าที่ 2 */}
-      {isContentExceedingLimit(quotationData.items) && (
-        <Page size="A4" style={styles.page}>
-          {renderSummaryAndPaymentDetails()}
-          {renderCharacterAmount()}
-          {renderSignature()}
+          <View style={styles.itemsTable}>
+            {renderTableHeader()}
+            {renderItemsWithSpacing(pageItems, currentPageStartIndex, maxRowsFirstPage)}
+          </View>
+          {/* แสดง Summary, Signature ในหน้าสุดท้าย */}
+          {pageIndex === pages.length - 1 && !shouldMoveToNextPage && (
+            <>
+              {renderSummaryAndPaymentDetails()}
+              {renderCharacterAmount()}
+              {renderSignature()}
+            </>
+          )}
         </Page>
-      )}
-    </Document>
-  );
+      );
+    }).concat(
+      pages.some((pageItems, pageIndex) => {
+        const isLastPage = pageIndex === pages.length - 1;
+        const contentHeight = pageItems.reduce((total, item) => {
+          return total + calculateRowHeight(item.description || "");
+        }, 0);
+  
+        const maxPageHeight = 842; // ความสูง A4
+        const contentLimit = maxPageHeight * 0.6; // ใช้ 60% ของความสูง A4
+  
+        return isLastPage && contentHeight > contentLimit;
+      })
+        ? [
+            <Page size="A4" style={styles.page} key="footer">
+              {renderSummaryAndPaymentDetails()}
+              {renderCharacterAmount()}
+              {renderSignature()}
+            </Page>,
+          ]
+        : []
+    );
+  };
+  
+  
+
+  return <Document>{renderPaginatedItems(quotationData.items)}</Document>;
 };
 
 export default QuotationPreview;
