@@ -172,9 +172,8 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
     </View>
   );
 
-  // renderItems: ไม่เติมแถวเปล่าหากเนื้อหาน้อยกว่า 40%
-  const renderItems = (items, startIndex = 0, maxRows) => {
-    return items.slice(0, maxRows).map((item, index) => (
+  const renderItemsWithSpacing = (items, startIndex = 0, maxRows) => {
+    const renderedItems = items.slice(0, maxRows).map((item, index) => (
       <View style={styles.tableRow} key={index}>
         <Text style={styles.tableColNo}>
           {item.description ? startIndex + index + 1 : ""}
@@ -199,6 +198,40 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
         </Text>
       </View>
     ));
+  
+    // ตรวจสอบกรณีที่เนื้อหาเกิน 40% แต่ไม่เกิน 70%
+    const isSpacingRequired =
+      !isContentBelowLimit(items) && !isContentExceedingLimit(items);
+  
+    return (
+      <>
+        {renderedItems}
+        {/* เพิ่มพื้นที่ว่างใต้ตาราง หากอยู่ในช่วง 40% - 70% */}
+        {isSpacingRequired && (
+          <>
+            {/* เติมช่องว่างแบบตาราง */}
+            {Array.from(
+              { length: Math.min(maxRows - items.length, 3) }, // จำกัดการเติมช่องว่างไม่เกิน 3 แถว
+              (_, i) => (
+                <View style={styles.tableRow} key={`empty-${i}`}>
+                  <Text style={styles.tableColNo}></Text>
+                  <Text style={styles.tableColDesc}></Text>
+                  <Text style={styles.tableCol}></Text>
+                  <Text style={styles.tableCol}></Text>
+                  <Text style={styles.tableCol}></Text>
+                </View>
+              )
+            )}
+            {/* เติมพื้นที่ว่างเล็กน้อยเพื่อความสมดุล */}
+            <View
+              style={{
+                height: 10, // ลดความสูงเพื่อให้สมดุล
+              }}
+            />
+          </>
+        )}
+      </>
+    );
   };
   
 
@@ -372,45 +405,50 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
 
   return (
     <Document>
-    <Page size="A4" style={styles.page}>
-      {renderTitle()}
-      {renderHeader()}
-      {renderProjectDetails()}
-      <View style={styles.itemsTable}>
-        {renderTableHeader()}
-        {renderItems(
+      <Page size="A4" style={styles.page}>
+        {renderTitle()}
+        {renderHeader()}
+        {renderProjectDetails()}
+        <View style={styles.itemsTable}>
+          {renderTableHeader()}
+          {/* {renderItems(
           quotationData.items,
           0,
           calculateMaxRowsPerPage().maxRowsFirstPage
+        )} */}
+          {renderItemsWithSpacing(
+            quotationData.items,
+            0,
+            calculateMaxRowsPerPage().maxRowsFirstPage
+          )}
+        </View>
+        {/* หากเนื้อหาไม่เกิน 40% ให้แสดง Summary และ Signature ในหน้าแรก */}
+        {isContentBelowLimit(quotationData.items) && (
+          <>
+            {renderSummaryAndPaymentDetails()}
+            {renderCharacterAmount()}
+            {renderSignature()}
+          </>
         )}
-      </View>
-      {/* หากเนื้อหาไม่เกิน 40% ให้แสดง Summary และ Signature ในหน้าแรก */}
-      {isContentBelowLimit(quotationData.items) && (
-        <>
-          {renderSummaryAndPaymentDetails()}
-          {renderCharacterAmount()}
-          {renderSignature()}
-        </>
-      )}
-    </Page>
-    {/* หากเนื้อหาเกิน 40% แต่ไม่เกิน 70% ให้แสดง Summary และ Signature ในหน้าที่ 2 */}
-    {!isContentBelowLimit(quotationData.items) &&
-      !isContentExceedingLimit(quotationData.items) && (
+      </Page>
+      {/* หากเนื้อหาเกิน 40% แต่ไม่เกิน 70% ให้แสดง Summary และ Signature ในหน้าที่ 2 */}
+      {!isContentBelowLimit(quotationData.items) &&
+        !isContentExceedingLimit(quotationData.items) && (
+          <Page size="A4" style={styles.page}>
+            {renderSummaryAndPaymentDetails()}
+            {renderCharacterAmount()}
+            {renderSignature()}
+          </Page>
+        )}
+      {/* หากเนื้อหาเกิน 70% ให้แสดง Summary และ Signature ในหน้าที่ 2 */}
+      {isContentExceedingLimit(quotationData.items) && (
         <Page size="A4" style={styles.page}>
           {renderSummaryAndPaymentDetails()}
           {renderCharacterAmount()}
           {renderSignature()}
         </Page>
       )}
-    {/* หากเนื้อหาเกิน 70% ให้แสดง Summary และ Signature ในหน้าที่ 2 */}
-    {isContentExceedingLimit(quotationData.items) && (
-      <Page size="A4" style={styles.page}>
-        {renderSummaryAndPaymentDetails()}
-        {renderCharacterAmount()}
-        {renderSignature()}
-      </Page>
-    )}
-  </Document>
+    </Document>
   );
 };
 
