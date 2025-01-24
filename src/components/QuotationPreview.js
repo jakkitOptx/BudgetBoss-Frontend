@@ -24,6 +24,56 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
     swiftCode: "N/A",
   };
 
+  // ตรวจสอบว่าเนื้อหาในหน้าแรกเกินเส้นแดง (ประมาณ 70%) ของหน้า A4 หรือไม่
+  const isContentExceedingLimit = (items) => {
+    const maxPageHeight = 842; // ความสูงของ A4 ใน pt
+    const headerHeight = 150; // ความสูงของส่วนหัวใน pt
+    const maxHeight = maxPageHeight * 0.7; // 70% ของ A4
+    const contentHeight =
+      headerHeight +
+      items.reduce((totalHeight, item) => {
+        return totalHeight + calculateRowHeight(item.description || "");
+      }, 0);
+
+    return contentHeight > maxHeight; // ตรวจสอบว่าเกิน 70% หรือไม่
+  };
+
+  // การคำนวณจำนวนแถวในหน้าแรกและหน้าที่สอง
+  const calculateMaxRowsPerPage = () => {
+    const maxPageHeight = 842; // ความสูงของ A4 ใน pt
+    const headerHeight = 150; // ความสูงโดยประมาณของส่วนหัว
+    const rowHeight = 20; // ความสูงเฉลี่ยของแต่ละแถวในตาราง
+    const maxRowsFirstPage = Math.floor(
+      (maxPageHeight * 0.7 - headerHeight) / rowHeight
+    );
+    const maxRowsOtherPages = Math.floor(
+      (maxPageHeight - headerHeight) / rowHeight
+    );
+
+    return { maxRowsFirstPage, maxRowsOtherPages };
+  };
+
+  // ตรวจสอบว่าเนื้อหาน้อยกว่า 40% ของหน้า A4 หรือไม่
+  const isContentBelowLimit = (items) => {
+    const maxPageHeight = 842; // ความสูงของ A4 ใน pt
+    const headerHeight = 150; // ความสูงของส่วนหัวใน pt
+    const limitHeight = maxPageHeight * 0.4; // 40% ของ A4
+    const contentHeight =
+      headerHeight +
+      items.reduce((totalHeight, item) => {
+        return totalHeight + calculateRowHeight(item.description || "");
+      }, 0);
+
+    return contentHeight <= limitHeight; // ตรวจสอบว่าไม่เกิน 40% หรือไม่
+  };
+
+  const calculateRowHeight = (description) => {
+    const baseHeight = 20; // ความสูงพื้นฐานของแถวใน pt
+    const lineHeight = 15; // ความสูงต่อบรรทัดเพิ่มเติมใน pt
+    const lines = description ? description.split("\n").length : 1; // จำนวนบรรทัด
+    return baseHeight + (lines - 1) * lineHeight; // คำนวณความสูงรวม
+  };
+
   // ส่วนหัวใบเสนอราคา
   const renderTitle = () => (
     <Text style={styles.headerTitle}>ใบเสนอราคา{"\n"}QUOTATION</Text>
@@ -89,10 +139,6 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
               {clientDetails?.contactPhoneNumber || "N/A"}
             </Text>
           </View>
-          {/* <View style={styles.detailRow}>
-                    <Text style={styles.label}>Project Name</Text>
-                    <Text style={styles.value}>{ quotationData.projectName || "N/A"}</Text>
-                </View> */}
         </View>
 
         {/* ฝั่งขวาแสดงรายละเอียดเอกสาร */}
@@ -111,10 +157,6 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
             <Text style={styles.label}>Salesperson:</Text>
             <Text style={styles.value}>{quotationData.salePerson || "-"}</Text>
           </View>
-          {/* <View style={styles.detailRow}>
-                    <Text style={styles.label}>Project Run:</Text>
-                    <Text style={styles.value}>{quotationData.period || "-"}</Text>
-                </View> */}
         </View>
       </View>
     );
@@ -130,15 +172,9 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
     </View>
   );
 
-  const renderItems = (items, startIndex = 0) => {
-    const maxRows = items.length <= 10 ? 10 : 27;
-    const itemsToRender = [...items];
-
-    while (itemsToRender.length < maxRows) {
-      itemsToRender.push({});
-    }
-
-    return itemsToRender.map((item, index) => (
+  // renderItems: ไม่เติมแถวเปล่าหากเนื้อหาน้อยกว่า 40%
+  const renderItems = (items, startIndex = 0, maxRows) => {
+    return items.slice(0, maxRows).map((item, index) => (
       <View style={styles.tableRow} key={index}>
         <Text style={styles.tableColNo}>
           {item.description ? startIndex + index + 1 : ""}
@@ -164,6 +200,7 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
       </View>
     ));
   };
+  
 
   const renderSummaryAndPaymentDetails = () => (
     <View style={styles.summaryContainer}>
@@ -335,31 +372,45 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
-        {renderTitle()}
-        {renderHeader()}
-        {/* แสดงรายละเอียดโครงการและวันที่ */}
-        {renderProjectDetails()}
-        <View style={styles.itemsTable}>
-          {renderTableHeader()}
-          {renderItems(quotationData.items.slice(0, 27), 0)}
-        </View>
-        {quotationData.items.length <= 27 && (
-          <>
-            {renderSummaryAndPaymentDetails()}
-            {renderCharacterAmount()}
-            {renderSignature()}
-          </>
+    <Page size="A4" style={styles.page}>
+      {renderTitle()}
+      {renderHeader()}
+      {renderProjectDetails()}
+      <View style={styles.itemsTable}>
+        {renderTableHeader()}
+        {renderItems(
+          quotationData.items,
+          0,
+          calculateMaxRowsPerPage().maxRowsFirstPage
         )}
-      </Page>
-      {quotationData.items.length > 27 && (
+      </View>
+      {/* หากเนื้อหาไม่เกิน 40% ให้แสดง Summary และ Signature ในหน้าแรก */}
+      {isContentBelowLimit(quotationData.items) && (
+        <>
+          {renderSummaryAndPaymentDetails()}
+          {renderCharacterAmount()}
+          {renderSignature()}
+        </>
+      )}
+    </Page>
+    {/* หากเนื้อหาเกิน 40% แต่ไม่เกิน 70% ให้แสดง Summary และ Signature ในหน้าที่ 2 */}
+    {!isContentBelowLimit(quotationData.items) &&
+      !isContentExceedingLimit(quotationData.items) && (
         <Page size="A4" style={styles.page}>
           {renderSummaryAndPaymentDetails()}
           {renderCharacterAmount()}
           {renderSignature()}
         </Page>
       )}
-    </Document>
+    {/* หากเนื้อหาเกิน 70% ให้แสดง Summary และ Signature ในหน้าที่ 2 */}
+    {isContentExceedingLimit(quotationData.items) && (
+      <Page size="A4" style={styles.page}>
+        {renderSummaryAndPaymentDetails()}
+        {renderCharacterAmount()}
+        {renderSignature()}
+      </Page>
+    )}
+  </Document>
   );
 };
 

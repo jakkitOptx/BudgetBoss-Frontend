@@ -1,3 +1,4 @@
+// styles.js ใช้สำหรับ render PDF ในหน้า QuotationPreview.js
 import { StyleSheet } from "@react-pdf/renderer";
 
 export const styles = StyleSheet.create({
