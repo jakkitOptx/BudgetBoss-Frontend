@@ -2,12 +2,11 @@ import React, { useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { apiURL } from "../config/config"; // Import ตัวแปร API URL
 
 const ApproveFlow = () => {
   const [flowName, setFlowName] = useState("");
-  const [levels, setLevels] = useState([
-    { level: 1, email: "" } // เริ่มต้นด้วย 1 level
-  ]);
+  const [levels, setLevels] = useState([{ level: 1, email: "" }]); // เริ่มต้นด้วย 1 level
 
   // Handle การเพิ่ม Level
   const addLevel = () => {
@@ -46,17 +45,18 @@ const ApproveFlow = () => {
       name: flowName, // เปลี่ยน flowName เป็น name
       approvalHierarchy: levels.map((level) => ({
         level: level.level,
-        approver: level.email
-      }))
+        approver: level.email,
+      })),
     };
 
     try {
-      const response = await axios.post("http://localhost:5000/api/approve-flows/create", payload);
+      const response = await axios.post(`${apiURL}approve-flows/create`, payload);
       toast.success("สร้าง Approve Flow สำเร็จ!", {
         position: "top-right",
         autoClose: 3000,
       });
       console.log(response.data);
+
       // Reset ฟอร์มหลังจากส่งสำเร็จ
       setFlowName("");
       setLevels([{ level: 1, email: "" }]);

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { apiURL } from "../config/config"; // Import API URL
 
 const ManageFlows = () => {
   const [flows, setFlows] = useState([]);
@@ -14,7 +15,7 @@ const ManageFlows = () => {
   useEffect(() => {
     const fetchFlows = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/approve-flows");
+        const response = await axios.get(`${apiURL}approve-flows`);
         setFlows(response.data.flows || []);
       } catch (error) {
         console.error("Error fetching flows:", error);
@@ -34,7 +35,7 @@ const ManageFlows = () => {
   const handleDelete = async (flowId) => {
     if (window.confirm("คุณต้องการลบ Flow นี้หรือไม่?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/approve-flows/delete/${flowId}`);
+        await axios.delete(`${apiURL}approve-flows/delete/${flowId}`);
         setFlows(flows.filter((flow) => flow._id !== flowId));
         toast.success("ลบ Flow สำเร็จ!", {
           position: "top-right",
@@ -66,16 +67,18 @@ const ManageFlows = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Manage Approve Flows</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center text-blue-600">Manage Approve Flows</h1>
       {flows.length === 0 ? (
-        <p className="text-gray-600">ยังไม่มี Flow ที่สร้าง</p>
+        <p className="text-gray-600 text-center">ยังไม่มี Flow ที่สร้าง</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse border border-gray-200 rounded-lg shadow-md">
             <thead className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
               <tr>
-                <th className="px-6 py-3 font-semibold text-sm tracking-wide uppercase">#</th>
-                <th className="px-6 py-3 font-semibold text-sm tracking-wide uppercase">Flow Name</th>
+                <th className="px-6 py-3 font-semibold text-sm tracking-wide uppercase text-left">#</th>
+                <th className="px-6 py-3 font-semibold text-sm tracking-wide uppercase text-left">
+                  Flow Name
+                </th>
                 <th className="px-6 py-3 font-semibold text-sm tracking-wide text-center uppercase">
                   Actions
                 </th>

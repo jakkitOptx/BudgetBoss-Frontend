@@ -3,9 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { apiURL } from "../config/config"; // Import API URL
 
 const EditFlow = () => {
-  const { id } = useParams(); // ดึง ID จาก URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const [flowName, setFlowName] = useState("");
   const [levels, setLevels] = useState([]);
@@ -14,7 +15,7 @@ const EditFlow = () => {
   useEffect(() => {
     const fetchFlow = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/approve-flows/${id}`);
+        const response = await axios.get(`${apiURL}approve-flows/${id}`);
         const flowData = response.data.flow;
         setFlowName(flowData.name);
         setLevels(flowData.approvalHierarchy || []);
@@ -65,9 +66,9 @@ const EditFlow = () => {
     };
 
     try {
-      await axios.put(`http://localhost:5000/api/approve-flows/update/${id}`, payload); // ใช้เส้นทาง update
+      await axios.put(`${apiURL}approve-flows/update/${id}`, payload); 
       toast.success("อัปเดต Flow สำเร็จ!", { position: "top-right", autoClose: 3000 });
-      navigate("/manage-flows"); // กลับไปหน้าจัดการ Flow
+      navigate("/manage-flows"); 
     } catch (error) {
       console.error("Error updating flow:", error);
       toast.error("เกิดข้อผิดพลาดในการอัปเดต Flow", { position: "top-right", autoClose: 3000 });
@@ -78,9 +79,9 @@ const EditFlow = () => {
   const handleDelete = async () => {
     if (window.confirm("คุณต้องการลบ Flow นี้หรือไม่?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/approve-flows/delete/${id}`); // ใช้เส้นทาง delete
+        await axios.delete(`${apiURL}approve-flows/delete/${id}`);
         toast.success("ลบ Flow สำเร็จ!", { position: "top-right", autoClose: 3000 });
-        navigate("/manage-flows"); // กลับไปหน้าจัดการ Flow
+        navigate("/manage-flows");
       } catch (error) {
         console.error("Error deleting flow:", error);
         toast.error("เกิดข้อผิดพลาดในการลบ Flow", { position: "top-right", autoClose: 3000 });
@@ -90,38 +91,38 @@ const EditFlow = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Edit Approve Flow</h1>
-      <form onSubmit={handleUpdate} className="space-y-4 bg-white p-6 rounded shadow-md">
+      <h1 className="text-2xl font-bold mb-6 text-center text-blue-600">Edit Approve Flow</h1>
+      <form onSubmit={handleUpdate} className="space-y-4 bg-white p-6 rounded shadow-md border border-gray-200">
         {/* Input ชื่อ Flow */}
         <div>
-          <label className="block font-medium">Flow Name</label>
+          <label className="block font-medium text-gray-700 mb-1">Flow Name</label>
           <input
             type="text"
             value={flowName}
             onChange={(e) => setFlowName(e.target.value)}
-            className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter flow name"
           />
         </div>
 
         {/* รายการ Approval Levels */}
         <div>
-          <label className="block font-medium mb-2">Approval Levels</label>
+          <label className="block font-medium text-gray-700 mb-2">Approval Levels</label>
           {levels.map((level, index) => (
-            <div key={index} className="flex items-center space-x-2 mb-2">
-              <span className="font-medium">Level {index + 1}</span>
+            <div key={index} className="flex items-center space-x-4 mb-3 bg-gray-100 p-3 rounded shadow">
+              <span className="font-medium text-gray-600">Level {index + 1}</span>
               <input
                 type="email"
                 value={level.approver}
                 onChange={(e) => handleLevelChange(index, e.target.value)}
-                className="border rounded px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Approver email"
               />
               <button
                 type="button"
                 onClick={() => removeLevel(index)}
                 className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-all duration-200"
-                disabled={levels.length === 1} // ห้ามลบถ้าเหลือ 1 level
+                disabled={levels.length === 1} 
               >
                 Remove
               </button>
@@ -133,7 +134,7 @@ const EditFlow = () => {
         <button
           type="button"
           onClick={addLevel}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all duration-200"
+          className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all duration-200"
         >
           Add Level
         </button>

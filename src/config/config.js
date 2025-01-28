@@ -1,3 +1,4 @@
+// config.js
 const currentURL = window.location.origin;
 
 export const apiURL =
