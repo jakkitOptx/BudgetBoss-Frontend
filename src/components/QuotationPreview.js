@@ -75,11 +75,29 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
     return baseHeight + (lines - 1) * lineHeight; // คำนวณความสูงรวม
   };
 
-  const renderHeaderLogo = () => (
-    <View style={styles.logoContainer}>
-      <Image src="https://i.imgur.com/Zm0Olyz.png" style={styles.logo} />
-    </View>
-  );
+  const renderHeaderLogo = () => {
+    // ดึงข้อมูล user จาก localStorage
+    const user = JSON.parse(localStorage.getItem("user")) || {};
+    const email = user.username || "";
+    const domain = email.split("@")[1]?.split(".")[0] || "";
+  
+    // ตรวจสอบ domain และกำหนดค่า companyName
+    const companyName = domain === "neonworks" ? "NEON" : domain === "optx" ? "OPTX" : "UNKNOWN";
+  
+    // เลือก URL ของโลโก้ตามบริษัท
+    const logoUrl =
+      companyName === "NEON"
+        ? "https://i.imgur.com/sfL5dWo.png" // โลโก้ของ NEON
+        : companyName === "OPTX"
+        ? "https://i.imgur.com/vHJYGdx.png" // โลโก้ของ OPTX
+        : "";
+  
+    return (
+      <View style={styles.logoContainer}>
+        {logoUrl ? <Image src={logoUrl} style={styles.logo} /> : null}
+      </View>
+    );
+  };
   
 
   // ส่วนหัวใบเสนอราคา

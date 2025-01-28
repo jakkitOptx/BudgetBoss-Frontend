@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
     width: "30%", // กำหนดพื้นที่สำหรับโลโก้
   },
   logo: {
-    width: 400, // ปรับขนาดโลโก้ให้เหมาะสม
+    width: 430, // ปรับขนาดโลโก้ให้เหมาะสม
     height: 60,
   },
   headerContent: {
