@@ -16,6 +16,7 @@ import Profile from "../pages/Profile";
 import ManageFlows from "../pages/ManageFlows";
 import ApproveFlow from "../pages/ApproveFlow";
 import EditFlow from "../pages/EditFlow";
+import RequestApproveFlow from "../pages/RequestApproveFlow";
 
 // Components
 import Layout from "../components/Layout";
@@ -54,6 +55,16 @@ const AppRoutes = () => {
             <ProtectedRoute>
               <Layout>
                 <CreateQuotation />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/request-approve-flow/:quotationId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <RequestApproveFlow />
               </Layout>
             </ProtectedRoute>
           }

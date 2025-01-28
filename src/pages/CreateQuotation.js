@@ -105,6 +105,33 @@ const CreateQuotation = () => {
     }));
   };
 
+  //  open on branch Dev
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const token = localStorage.getItem("token");
+      
+  //     // สร้างใบ Quotation ใหม่
+  //     const response = await axios.post(`${apiURL}quotations`, quotationData, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  
+  //     // รับค่า quotationId จาก API
+  //     const quotationId = response.data._id;
+  
+  //     alert("Quotation created successfully!");
+  
+  //     // Redirect ไปที่หน้าเลือก Approve Flow
+  //     navigate(`/request-approve-flow/${quotationId}`);
+  //   } catch (error) {
+  //     console.error("Error creating quotation:", error);
+  //     alert("Failed to create quotation.");
+  //   }
+  // };
+
+  // open on master
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -121,6 +148,7 @@ const CreateQuotation = () => {
       alert("Failed to create quotation.");
     }
   };
+  
 
   const handlePreview = async () => {
     console.log("quotationData Create ==>", quotationData);
