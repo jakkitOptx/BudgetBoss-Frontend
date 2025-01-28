@@ -402,16 +402,6 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
     </View>
   );
 
-  const footerHeight = 150; // ความสูงโดยประมาณของ Summary และ Signature
-  const isFooterExceedingPage = (items, rowsUsed) => {
-    const maxPageHeight = 842; // ความสูงของ A4 ใน pt
-    const headerHeight = 150; // ความสูงของส่วนหัวใน pt
-    const rowHeight = 20; // ความสูงเฉลี่ยของแต่ละแถวในตาราง
-    const contentHeight = headerHeight + rowsUsed * rowHeight;
-
-    return contentHeight + footerHeight > maxPageHeight; // ตรวจสอบว่าเกินหน้า A4 หรือไม่
-  };
-
   const paginateItems = (items, maxRowsPerPage) => {
     const pages = [];
     let currentPage = [];
