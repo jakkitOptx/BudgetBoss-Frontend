@@ -6,11 +6,11 @@ import { apiURL } from "../config/config"; // Import ตัวแปร API URL
 
 const ApproveFlow = () => {
   const [flowName, setFlowName] = useState("");
-  const [levels, setLevels] = useState([{ level: 1, email: "" }]); // เริ่มต้นด้วย 1 level
+  const [levels, setLevels] = useState([{ level: 2, email: "" }]); // เริ่มที่ Level 2
 
-  // Handle การเพิ่ม Level
+  // Handle การเพิ่ม Level (เริ่มที่ Level 2)
   const addLevel = () => {
-    setLevels([...levels, { level: levels.length + 1, email: "" }]);
+    setLevels([...levels, { level: levels.length + 2, email: "" }]); // ให้ลำดับเพิ่มเป็น 2, 3, 4, ...
   };
 
   // Handle การลบ Level
@@ -31,7 +31,10 @@ const ApproveFlow = () => {
     e.preventDefault();
 
     // Validation: ตรวจสอบอีเมล
-    const hasInvalidEmail = levels.some((level) => !/\S+@\S+\.\S+/.test(level.email));
+    const hasInvalidEmail = levels.some(
+      (level) => !/\S+@\S+\.\S+/.test(level.email)
+    );
+
     if (!flowName || hasInvalidEmail) {
       toast.error("กรุณากรอกชื่อ Flow และอีเมลให้ถูกต้อง!", {
         position: "top-right",
@@ -42,7 +45,7 @@ const ApproveFlow = () => {
 
     // สร้าง payload
     const payload = {
-      name: flowName, // เปลี่ยน flowName เป็น name
+      name: flowName,
       approvalHierarchy: levels.map((level) => ({
         level: level.level,
         approver: level.email,
@@ -59,7 +62,7 @@ const ApproveFlow = () => {
 
       // Reset ฟอร์มหลังจากส่งสำเร็จ
       setFlowName("");
-      setLevels([{ level: 1, email: "" }]);
+      setLevels([{ level: 2, email: "" }]); // Reset กลับมาเริ่มที่ Level 2
     } catch (error) {
       console.error("Error creating approve flow:", error);
       toast.error("เกิดข้อผิดพลาดในการสร้าง Approve Flow", {
@@ -92,7 +95,9 @@ const ApproveFlow = () => {
 
         {/* Dynamic Levels */}
         <div>
-          <label className="block font-medium text-gray-700 mb-2">Approval Levels</label>
+          <label className="block font-medium text-gray-700 mb-2">
+            Approval Levels (เริ่มที่ Level 2)
+          </label>
           {levels.map((level, index) => (
             <div
               key={index}
