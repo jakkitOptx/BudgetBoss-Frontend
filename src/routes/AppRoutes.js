@@ -1,21 +1,24 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoute'; // นำเข้า ProtectedRoute
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./ProtectedRoute"; // นำเข้า ProtectedRoute
 
 // Pages
-import Dashboard from '../pages/Dashboard';
-import QuotationManagement from '../pages/QuotationManagement';
-import CreateQuotation from '../pages/CreateQuotation';
-import EditQuotation from '../pages/EditQuotation';
-import QuotationDetails from '../pages/QuotationDetails';
-import ApprovalManagement from '../pages/ApprovalManagement';
-import UserManagement from '../pages/UserManagement';
-import Logs from '../pages/Logs';
-import Login from '../pages/Login';
-import Profile from '../pages/Profile';
+import Dashboard from "../pages/Dashboard";
+import QuotationManagement from "../pages/QuotationManagement";
+import CreateQuotation from "../pages/CreateQuotation";
+import EditQuotation from "../pages/EditQuotation";
+import QuotationDetails from "../pages/QuotationDetails";
+import ApprovalManagement from "../pages/ApprovalManagement";
+import UserManagement from "../pages/UserManagement";
+import Logs from "../pages/Logs";
+import Login from "../pages/Login";
+import Profile from "../pages/Profile";
+import ManageFlows from "../pages/ManageFlows";
+import ApproveFlow from "../pages/ApproveFlow";
+import EditFlow from "../pages/EditFlow";
 
 // Components
-import Layout from '../components/Layout';
+import Layout from "../components/Layout";
 
 const AppRoutes = () => {
   return (
@@ -81,6 +84,36 @@ const AppRoutes = () => {
             <ProtectedRoute>
               <Layout>
                 <ApprovalManagement />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/approve-flow"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ApproveFlow />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/manage-flows"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ManageFlows />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit-flow/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <EditFlow />
               </Layout>
             </ProtectedRoute>
           }
