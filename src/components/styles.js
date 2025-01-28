@@ -8,20 +8,30 @@ export const styles = StyleSheet.create({
     fontFamily: "NotoSansThai",
   },
   header: {
-    flexDirection: "row", // จัดเรียงในแนวนอน
-    justifyContent: "space-between", // เพิ่มระยะห่างระหว่าง title กับ details
-    alignItems: "flex-start", // จัดให้อยู่ด้านบนสุด
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 20,
+    paddingBottom: 10,
     borderBottomWidth: 2,
     borderBottomColor: "#4A3F7D",
-    paddingBottom: 10,
+  },
+  logoContainer: {
+    width: "30%", // กำหนดพื้นที่สำหรับโลโก้
+  },
+  logo: {
+    width: 400, // ปรับขนาดโลโก้ให้เหมาะสม
+    height: 60,
+  },
+  headerContent: {
+    flex: 1,
+    textAlign: "right", // จัดหัวข้อไปทางขวา
   },
   headerTitle: {
     fontSize: 14,
     fontWeight: "bold",
     color: "#4A3F7D",
-    textAlign: "right", // จัดให้อยู่ชิดขวา
-    flex: 1,
+    textAlign: "right",
   },
   clientDetailsContainer: {
     width: "50%", // ใช้พื้นที่ครึ่งหนึ่งของหน้า

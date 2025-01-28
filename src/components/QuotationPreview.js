@@ -1,6 +1,7 @@
 import React from "react";
 import { Page, Text, View, Document } from "@react-pdf/renderer";
 import { Font } from "@react-pdf/renderer";
+import { Image } from "@react-pdf/renderer";
 import ThaiBaht from "thai-baht-text";
 import { styles } from "./styles";
 
@@ -74,10 +75,24 @@ const QuotationPreview = ({ quotationData, bankInfo }) => {
     return baseHeight + (lines - 1) * lineHeight; // คำนวณความสูงรวม
   };
 
-  // ส่วนหัวใบเสนอราคา
-  const renderTitle = () => (
-    <Text style={styles.headerTitle}>ใบเสนอราคา{"\n"}QUOTATION</Text>
+  const renderHeaderLogo = () => (
+    <View style={styles.logoContainer}>
+      <Image src="https://i.imgur.com/Zm0Olyz.png" style={styles.logo} />
+    </View>
   );
+  
+
+  // ส่วนหัวใบเสนอราคา
+  const renderTitle = () => {
+    return (
+      <View style={styles.header}>
+        {renderHeaderLogo()} {/* แสดงโลโก้ที่มุมซ้าย */}
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>ใบเสนอราคา{"\n"}QUOTATION</Text>
+        </View>
+      </View>
+    );
+  };
 
   const renderProjectDetails = () => {
     return (
