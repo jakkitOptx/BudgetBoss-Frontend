@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { apiURL } from "../config/config"; // ✅ ใช้ API URL จาก Config
 
 const UserFlowManagement = () => {
   const [users, setUsers] = useState([]); // รายชื่อพนักงาน
@@ -7,8 +8,6 @@ const UserFlowManagement = () => {
   const [updatedUsers, setUpdatedUsers] = useState({}); // เก็บ user ที่ถูกแก้ไข
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
-  const apiURL = "http://localhost:5000/api";
 
   // ✅ ดึงข้อมูล Users และ Flows
   useEffect(() => {
