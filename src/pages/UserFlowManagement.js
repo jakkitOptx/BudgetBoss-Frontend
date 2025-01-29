@@ -13,8 +13,8 @@ const UserFlowManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const usersResponse = await axios.get(`${apiURL}/users`);
-        const flowsResponse = await axios.get(`${apiURL}/approve-flows/`);
+        const usersResponse = await axios.get(`${apiURL}users`);
+        const flowsResponse = await axios.get(`${apiURL}approve-flows`);
         setUsers(usersResponse.data);
         setFlows(flowsResponse.data.flows || flowsResponse.data);
       } catch (error) {
@@ -51,7 +51,7 @@ const UserFlowManagement = () => {
       const updateRequests = Object.entries(updatedUsers).map(
         async ([userId, flowId]) => {
           await axios.patch(
-            `${apiURL}/users/${userId}`,
+            `${apiURL}users/${userId}`,  // ✅ เอา `/` ออก
             { flow: flowId },
             {
               headers: {
