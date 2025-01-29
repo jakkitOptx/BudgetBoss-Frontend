@@ -25,7 +25,7 @@ const Sidebar = () => {
             </Link>
           </li>
 
-          {/* Flow Management Dropdown */}
+          {/* 🔹 Flow Management Dropdown */}
           <li className="mb-4">
             <button
               className="w-full text-left hover:text-gray-300 flex justify-between items-center"
@@ -42,9 +42,15 @@ const Sidebar = () => {
                     ➤ Create Flow
                   </Link>
                 </li>
-                <li>
+                <li className="mb-2">
                   <Link to="/manage-flows" className="hover:text-gray-300">
                     ➤ Manage Flows
+                  </Link>
+                </li>
+                {/* ✅ เพิ่ม UserFlowManagement เข้า Dropdown */}
+                <li className="mb-2">
+                  <Link to="/user-flow-management" className="hover:text-gray-300">
+                    ➤ User Flow Management
                   </Link>
                 </li>
               </ul>

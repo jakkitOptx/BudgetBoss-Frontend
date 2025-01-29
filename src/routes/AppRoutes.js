@@ -17,6 +17,7 @@ import ManageFlows from "../pages/ManageFlows";
 import ApproveFlow from "../pages/ApproveFlow";
 import EditFlow from "../pages/EditFlow";
 import RequestApproveFlow from "../pages/RequestApproveFlow";
+import UserFlowManagement from "../pages/UserFlowManagement";
 
 // Components
 import Layout from "../components/Layout";
@@ -125,6 +126,16 @@ const AppRoutes = () => {
             <ProtectedRoute>
               <Layout>
                 <EditFlow />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/user-flow-management"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <UserFlowManagement />
               </Layout>
             </ProtectedRoute>
           }
