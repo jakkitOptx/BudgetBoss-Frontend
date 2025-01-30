@@ -130,7 +130,7 @@ const QuotationManagement = () => {
                         q.approvalStatus === "Approved"
                           ? "bg-green-100 text-green-700"
                           : q.approvalStatus === "Pending"
-                          ? "bg-yellow-100 text-yellow-700"
+                          ? "bg-yellow-300 text-yellow-700"
                           : q.approvalStatus === "Rejected" ||
                             q.approvalStatus === "Canceled"
                           ? "bg-red-100 text-red-700"

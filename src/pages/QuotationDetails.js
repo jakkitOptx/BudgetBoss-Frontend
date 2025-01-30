@@ -180,7 +180,7 @@ const QuotationDetails = () => {
                 quotation.approvalStatus === "Approved"
                   ? "bg-green-100 text-green-700"
                   : quotation.approvalStatus === "Pending"
-                  ? "bg-yellow-100 text-yellow-700"
+                  ? "bg-yellow-300 text-yellow-700"
                   : quotation.approvalStatus === "Rejected" ||
                     quotation.approvalStatus === "Canceled"
                   ? "bg-red-100 text-red-700"

@@ -170,6 +170,16 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/quotation-details/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <QuotationDetails  />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );
