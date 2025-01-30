@@ -9,33 +9,36 @@ const RequestApproveFlow = () => {
   const [flowDetails, setFlowDetails] = useState(null); // เก็บรายละเอียดของ Flow
   const [loading, setLoading] = useState(true); // สถานะโหลดข้อมูล
   const [submitting, setSubmitting] = useState(false); // สถานะกำลังส่งข้อมูล
-  const [userFlowId, setUserFlowId] = useState(""); // เก็บ Flow ID ของผู้ใช้
+  const [userFlowId, setUserFlowId] = useState(null); // เก็บ Flow ID ของผู้ใช้
 
   // ✅ ดึงค่า Flow ID จาก LocalStorage
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser && storedUser.flow) {
       setUserFlowId(storedUser.flow);
+    } else {
+      setLoading(false); // ❌ ไม่มี Flow ให้หยุดโหลดเลย
     }
   }, []);
 
   // ✅ ดึงรายละเอียดของ Flow ตาม Flow ID ที่ได้จาก LocalStorage
   useEffect(() => {
-    if (userFlowId) {
-      const fetchFlowDetails = async () => {
-        try {
-          const response = await axios.get(`${apiURL}approve-flows/${userFlowId}`);
-          console.log("Fetched Flow Details:", response.data); // Debug Response
-          setFlowDetails(response.data.flow);
-        } catch (error) {
-          console.error("Error fetching flow details:", error);
-          setFlowDetails(null);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchFlowDetails();
-    }
+    if (!userFlowId) return; // ❌ ถ้าไม่มี userFlowId หยุดทำงานทันที
+
+    const fetchFlowDetails = async () => {
+      try {
+        const response = await axios.get(`${apiURL}approve-flows/${userFlowId}`);
+        console.log("Fetched Flow Details:", response.data); // Debug Response
+        setFlowDetails(response.data.flow);
+      } catch (error) {
+        console.error("Error fetching flow details:", error);
+        setFlowDetails(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFlowDetails();
   }, [userFlowId]);
 
   // ✅ Handle การยืนยัน Flow และส่งไปยัง `/api/approvals`
@@ -88,6 +91,8 @@ const RequestApproveFlow = () => {
       <div className="bg-white shadow rounded p-6">
         {loading ? (
           <p className="text-gray-600">Loading approve flow details...</p>
+        ) : !userFlowId ? ( // ❌ ถ้าไม่มี userFlowId แสดงข้อความ Error
+          <p className="text-red-500">ไม่พบ Flow ที่เกี่ยวข้องกับบัญชีของคุณ</p>
         ) : flowDetails ? (
           <>
             <label className="block font-medium text-gray-700 mb-2">
