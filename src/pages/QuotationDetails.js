@@ -9,7 +9,6 @@ import bankAccounts from "../data/bankAccounts.json";
 import ApprovalFlowHorizontal from "../components/ApprovalFlowHorizontal";
 import { apiURL } from "../config/config";
 
-
 const handleDownloadPDF = async (quotation, clientDetails) => {
   try {
     const user = JSON.parse(localStorage.getItem("user")) || {};
@@ -69,14 +68,11 @@ const QuotationDetails = () => {
     const fetchQuotationDetails = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(
-          `${apiURL}quotations/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${apiURL}quotations/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         const data = response.data;
         // console.log("data quotations QuotationDetails ==>", data);
@@ -141,8 +137,12 @@ const QuotationDetails = () => {
       </div>
       {/* ✅ Approval Flow Section */}
       <div className="bg-white shadow rounded p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Approval Flow</h2>
-        <ApprovalFlowHorizontal approvalHierarchy={quotation.approvalHierarchy || []} />
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          Approval Flow
+        </h2>
+        <ApprovalFlowHorizontal
+          approvalHierarchy={quotation.approvalHierarchy || []}
+        />
       </div>
 
       {/* Basic Information */}
@@ -180,20 +180,22 @@ const QuotationDetails = () => {
           <p>
             <span className="font-bold">Status:</span>{" "}
             <span
-              className={`px-2 py-1 rounded ${
+              className={`px-2 py-1 rounded text-xs ${
                 quotation.approvalStatus === "Approved"
-                  ? "bg-green-100 text-green-700"
+                  ? "bg-green-300 text-green-900"
                   : quotation.approvalStatus === "Pending"
-                  ? "bg-yellow-300 text-yellow-700"
-                  : quotation.approvalStatus === "Rejected" ||
-                    quotation.approvalStatus === "Canceled"
-                  ? "bg-red-100 text-red-700"
+                  ? "bg-yellow-300 text-yellow-900"
+                  : quotation.approvalStatus === "Rejected"
+                  ? "bg-red-300 text-red-900"
+                  : quotation.approvalStatus === "Canceled"
+                  ? "bg-gray-300 text-gray-900"
                   : "bg-gray-100 text-gray-700"
               }`}
             >
               {quotation.approvalStatus}
             </span>
           </p>
+
           <p>
             <span className="font-bold">Credit Term:</span>{" "}
             {quotation.CreditTerm ? `${quotation.CreditTerm} days` : "N/A"}

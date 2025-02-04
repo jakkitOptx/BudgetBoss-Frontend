@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import { apiURL } from "../config/config";
 
-
 const QuotationManagement = () => {
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,14 +15,11 @@ const QuotationManagement = () => {
     const fetchQuotations = async () => {
       try {
         const token = localStorage.getItem("token"); // ดึง Token จาก localStorage
-        const response = await axios.get(
-          `${apiURL}quotations`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`, // ส่ง Token ใน Header
-            },
-          }
-        );
+        const response = await axios.get(`${apiURL}quotations`, {
+          headers: {
+            Authorization: `Bearer ${token}`, // ส่ง Token ใน Header
+          },
+        });
         setQuotations(response.data);
         setLoading(false);
       } catch (error) {
@@ -126,14 +122,15 @@ const QuotationManagement = () => {
                   </td>
                   <td className="py-2">
                     <span
-                      className={`px-2 py-1 rounded ${
+                      className={`px-2 py-1 rounded text-xs ${
                         q.approvalStatus === "Approved"
-                          ? "bg-green-100 text-green-700"
+                          ? "bg-green-300 text-green-900"
                           : q.approvalStatus === "Pending"
-                          ? "bg-yellow-300 text-yellow-700"
-                          : q.approvalStatus === "Rejected" ||
-                            q.approvalStatus === "Canceled"
-                          ? "bg-red-100 text-red-700"
+                          ? "bg-yellow-300 text-yellow-900"
+                          : q.approvalStatus === "Rejected"
+                          ? "bg-red-300 text-red-900"
+                          : q.approvalStatus === "Canceled"
+                          ? "bg-gray-300 text-gray-900"
                           : "bg-gray-100 text-gray-700"
                       }`}
                     >
