@@ -6,6 +6,7 @@ import { pdf } from "@react-pdf/renderer";
 import QuotationPreview from "../components/QuotationPreview";
 import { FaFilePdf } from "react-icons/fa";
 import bankAccounts from "../data/bankAccounts.json";
+import ApprovalFlowHorizontal from "../components/ApprovalFlowHorizontal";
 import { apiURL } from "../config/config";
 
 
@@ -78,7 +79,7 @@ const QuotationDetails = () => {
         );
 
         const data = response.data;
-        console.log("data quotations QuotationDetails ==>", data);
+        // console.log("data quotations QuotationDetails ==>", data);
 
         setQuotation(data);
 
@@ -92,8 +93,6 @@ const QuotationDetails = () => {
               },
             }
           );
-          console.log("data clients QuotationDetails ==>", data);
-
           setClientDetails(clientResponse.data);
         }
 
@@ -139,6 +138,11 @@ const QuotationDetails = () => {
           <FaFilePdf size={16} /> {/* Icon */}
           Download PDF
         </button>
+      </div>
+      {/* ✅ Approval Flow Section */}
+      <div className="bg-white shadow rounded p-6 mb-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Approval Flow</h2>
+        <ApprovalFlowHorizontal approvalHierarchy={quotation.approvalHierarchy || []} />
       </div>
 
       {/* Basic Information */}
