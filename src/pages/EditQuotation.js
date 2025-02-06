@@ -149,7 +149,7 @@ const EditQuotation = () => {
     e.preventDefault();
     const toISOString = (dateString) =>
       dateString ? new Date(dateString).toISOString() : null;
-
+  
     const updatedQuotationData = {
       ...quotationData,
       documentDate: toISOString(quotationData.documentDate),
@@ -160,9 +160,11 @@ const EditQuotation = () => {
         amount: item.unit * parseFloat(item.unitPrice || 0),
       })),
     };
-
+  
     try {
       const token = localStorage.getItem("token");
+  
+      // 1. **อัปเดตข้อมูล Quotation**
       await axios.patch(
         `${apiURL}quotations/${id}`,
         updatedQuotationData,
@@ -170,6 +172,29 @@ const EditQuotation = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+  
+      // 2. **Reset approvalHierarchy เมื่อ approvalStatus เป็น Rejected และ user level = 1**
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (quotationData.approvalStatus === "Rejected" && user.level === 1) {
+        if (quotationData.approvalHierarchy?.length > 0) {
+          const approvalId = quotationData.approvalHierarchy[0]._id;
+          const newApprovalFlow = quotationData.approvalHierarchy[0].approvalHierarchy.map(level => ({
+            level: level.level,
+            approver: level.approver,
+            status: "Pending"
+          }));
+  
+          // **ยิง API ไป reset flow approvalHierarchy**
+          await axios.patch(
+            `${apiURL}approvals/${approvalId}/reset`,
+            { approvalHierarchy: newApprovalFlow },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+        }
+      }
+  
       alert("Quotation updated successfully!");
       navigate("/quotations");
     } catch (err) {
