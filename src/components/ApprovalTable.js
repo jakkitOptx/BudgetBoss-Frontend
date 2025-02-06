@@ -12,6 +12,7 @@ const ApprovalTable = ({ quotations }) => {
   const [selectedAction, setSelectedAction] = useState("");
   const [selectedQuotation, setSelectedQuotation] = useState(null);
   const [reason, setReason] = useState("");
+  const [error, setError] = useState(""); // ✅ เก็บข้อความผิดพลาด
 
   // ✅ ฟังก์ชันดึงข้อมูล User
   const getUserData = () => {
@@ -23,6 +24,7 @@ const ApprovalTable = ({ quotations }) => {
   const openModal = (actionType, qt) => {
     setSelectedAction(actionType);
     setSelectedQuotation(qt);
+    setReason(qt.reason || ""); // ✅ กรอกเหตุผลจากข้อมูลที่มีอยู่
     setIsModalOpen(true);
   };
 
@@ -30,54 +32,90 @@ const ApprovalTable = ({ quotations }) => {
   const closeModal = () => {
     setIsModalOpen(false);
     setReason("");
+    setError(""); // ✅ เคลียร์ error เมื่อปิด Popup
   };
 
   // ✅ ฟังก์ชันอัปเดต Status (ยิง API)
-const updateApprovalStatus = async () => {
-  if (!selectedQuotation) return;
-  const { email, level } = getUserData();
-  const token = localStorage.getItem("token");
+  const updateApprovalStatus = async () => {
+    if (!selectedQuotation) return;
+    const { email, level } = getUserData();
+    const token = localStorage.getItem("token");
 
-  // ✅ หา ID ที่ถูกต้องจาก `approvalHierarchy`
-  const approvalId = selectedQuotation.approvalHierarchy[0]?._id;
-  if (!approvalId) {
-    console.error("Approval ID not found in approvalHierarchy!");
-    return;
-  }
+    // ✅ หา ID ที่ถูกต้องจาก `approvalHierarchy`
+    const approvalId = selectedQuotation.approvalHierarchy[0]?._id;
+    if (!approvalId) {
+      console.error("Approval ID not found in approvalHierarchy!");
+      return;
+    }
 
-  try {
-    await axios.patch(
-      `${apiURL}approvals/${approvalId}/approvers`,
-      {
-        level,
-        approver: email,
-        status: selectedAction === "reject" ? "Rejected" : "Canceled",
-      },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+    // ✅ ถ้าเป็น Cancel ต้องมี reason
+    if (selectedAction === "cancel" && !reason.trim()) {
+      setError("กรุณากรอกเหตุผลในการยกเลิก");
+      return;
+    }
 
-    // ✅ ยิง API อัปเดตเหตุผลแยกเฉพาะกรณี Reject / Cancel
-    if (selectedAction === "reject" || selectedAction === "cancel") {
+    try {
       await axios.patch(
-        `${apiURL}quotations/${selectedQuotation._id}/reason`, // ✅ ใช้ `selectedQuotation._id`
-        { reason },
+        `${apiURL}approvals/${approvalId}/approvers`,
+        {
+          level,
+          approver: email,
+          status: selectedAction === "reject" ? "Rejected" : "Canceled",
+        },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
+      // ✅ ยิง API อัปเดตเหตุผลแยกเฉพาะกรณี Reject / Cancel
+      if (selectedAction === "reject" || selectedAction === "cancel") {
+        await axios.patch(
+          `${apiURL}quotations/${selectedQuotation._id}/reason`, // ✅ ใช้ `selectedQuotation._id`
+          { reason },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      }
+
+      closeModal();
+      window.location.reload();
+    } catch (error) {
+      console.error(`Error updating quotation:`, error);
+      setError("เกิดข้อผิดพลาด ไม่สามารถอัปเดตสถานะได้");
+    }
+  };
+
+  // ✅ ฟังก์ชันสำหรับ Approve (ไม่ต้องมีเหตุผล)
+  const approveQuotation = async (qt) => {
+    const { email, level } = getUserData();
+    const token = localStorage.getItem("token");
+
+    const approvalId = qt.approvalHierarchy[0]?._id;
+    if (!approvalId) {
+      console.error("Approval ID not found in approvalHierarchy!");
+      return;
     }
 
-    alert(`Successfully ${selectedAction === "reject" ? "Rejected" : "Canceled"} the quotation`);
-    closeModal();
-    window.location.reload();
-  } catch (error) {
-    console.error(`Error updating quotation:`, error);
-    alert("Failed to update quotation.");
-  }
-};
+    try {
+      await axios.patch(
+        `${apiURL}approvals/${approvalId}/approvers`,
+        {
+          level,
+          approver: email,
+          status: "Approved",
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
+      window.location.reload();
+    } catch (error) {
+      console.error(`Error approving quotation:`, error);
+      setError("เกิดข้อผิดพลาด ไม่สามารถอนุมัติได้");
+    }
+  };
 
   return (
     <div className="bg-white shadow rounded p-4">
@@ -115,7 +153,7 @@ const updateApprovalStatus = async () => {
 
                   <button
                     className="flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-                    onClick={() => updateApprovalStatus(qt, "Approved")}
+                    onClick={() => approveQuotation(qt)}
                   >
                     <FaCheckCircle /> Approve
                   </button>
@@ -154,6 +192,7 @@ const updateApprovalStatus = async () => {
         actionType={selectedAction}
         reason={reason}
         setReason={setReason}
+        error={error} // ✅ ส่ง error message ไปให้ Popup
       />
     </div>
   );
