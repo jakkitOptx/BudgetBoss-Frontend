@@ -1,3 +1,4 @@
+// AppRoutes.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute"; // นำเข้า ProtectedRoute
