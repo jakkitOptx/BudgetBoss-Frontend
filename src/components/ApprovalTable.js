@@ -1,10 +1,83 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaCheckCircle, FaTimesCircle, FaBan } from "react-icons/fa"; // ✅ เพิ่มไอคอนจาก react-icons
+import { FaEye, FaCheckCircle, FaTimesCircle, FaBan } from "react-icons/fa";
 import ApprovalStatusBadge from "./ApprovalStatusBadge";
+import ApprovalActionModal from "./ApprovalActionModal"; // ✅ Popup กรอกเหตุผล
+import axios from "axios";
+import { apiURL } from "../config/config";
 
 const ApprovalTable = ({ quotations }) => {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState("");
+  const [selectedQuotation, setSelectedQuotation] = useState(null);
+  const [reason, setReason] = useState("");
+
+  // ✅ ฟังก์ชันดึงข้อมูล User
+  const getUserData = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    return { email: user?.username || "", level: user?.level || 0 };
+  };
+
+  // ✅ เปิด Popup และกำหนดค่าที่เกี่ยวข้อง
+  const openModal = (actionType, qt) => {
+    setSelectedAction(actionType);
+    setSelectedQuotation(qt);
+    setIsModalOpen(true);
+  };
+
+  // ✅ ปิด Popup
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setReason("");
+  };
+
+  // ✅ ฟังก์ชันอัปเดต Status (ยิง API)
+const updateApprovalStatus = async () => {
+  if (!selectedQuotation) return;
+  const { email, level } = getUserData();
+  const token = localStorage.getItem("token");
+
+  // ✅ หา ID ที่ถูกต้องจาก `approvalHierarchy`
+  const approvalId = selectedQuotation.approvalHierarchy[0]?._id;
+  if (!approvalId) {
+    console.error("Approval ID not found in approvalHierarchy!");
+    return;
+  }
+
+  try {
+    await axios.patch(
+      `${apiURL}approvals/${approvalId}/approvers`,
+      {
+        level,
+        approver: email,
+        status: selectedAction === "reject" ? "Rejected" : "Canceled",
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    // ✅ ยิง API อัปเดตเหตุผลแยกเฉพาะกรณี Reject / Cancel
+    if (selectedAction === "reject" || selectedAction === "cancel") {
+      await axios.patch(
+        `${apiURL}quotations/${selectedQuotation._id}/reason`, // ✅ ใช้ `selectedQuotation._id`
+        { reason },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+    }
+
+    alert(`Successfully ${selectedAction === "reject" ? "Rejected" : "Canceled"} the quotation`);
+    closeModal();
+    window.location.reload();
+  } catch (error) {
+    console.error(`Error updating quotation:`, error);
+    alert("Failed to update quotation.");
+  }
+};
+
 
   return (
     <div className="bg-white shadow rounded p-4">
@@ -33,7 +106,6 @@ const ApprovalTable = ({ quotations }) => {
                   <ApprovalStatusBadge status={qt.approvalStatus} />
                 </td>
                 <td className="p-2 border text-center flex gap-2 justify-center">
-                  {/* ✅ ปุ่ม View พร้อมไอคอน */}
                   <button
                     className="flex items-center gap-1 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                     onClick={() => navigate(`/quotation-details/${qt._id}`)}
@@ -41,18 +113,24 @@ const ApprovalTable = ({ quotations }) => {
                     <FaEye /> View
                   </button>
 
-                  {/* ✅ ปุ่ม Approve พร้อมไอคอน */}
-                  <button className="flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
+                  <button
+                    className="flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                    onClick={() => updateApprovalStatus(qt, "Approved")}
+                  >
                     <FaCheckCircle /> Approve
                   </button>
 
-                  {/* ✅ ปุ่ม Reject พร้อมไอคอน */}
-                  <button className="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                  <button
+                    className="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                    onClick={() => openModal("reject", qt)}
+                  >
                     <FaTimesCircle /> Reject
                   </button>
 
-                  {/* ✅ ปุ่ม Cancel พร้อมไอคอน */}
-                  <button className="flex items-center gap-1 bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600">
+                  <button
+                    className="flex items-center gap-1 bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                    onClick={() => openModal("cancel", qt)}
+                  >
                     <FaBan /> Cancel
                   </button>
                 </td>
@@ -67,6 +145,16 @@ const ApprovalTable = ({ quotations }) => {
           )}
         </tbody>
       </table>
+
+      {/* ✅ Popup สำหรับกรอกเหตุผล */}
+      <ApprovalActionModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onConfirm={updateApprovalStatus}
+        actionType={selectedAction}
+        reason={reason}
+        setReason={setReason}
+      />
     </div>
   );
 };
