@@ -151,44 +151,50 @@ const ApprovalTable = ({ quotations }) => {
                 <td className="p-2 border text-center">
                   <ApprovalStatusBadge status={qt.approvalStatus} />
                 </td>
-                <td className="p-2 border text-center flex flex-wrap gap-2 justify-center">
-                  <button
-                    className="flex items-center gap-1 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                    onClick={() => navigate(`/quotation-details/${qt._id}`)}
-                  >
-                    <FaEye /> View
-                  </button>
+                <td className="p-2 border">
+                  <div className="flex flex-wrap gap-2 justify-start">
+                    {/* ปุ่ม View */}
+                    <button
+                      className="flex items-center gap-1 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      onClick={() => navigate(`/quotation-details/${qt._id}`)}
+                    >
+                      <FaEye /> View
+                    </button>
 
-                  {canEditDelete(qt.approvalStatus) && (
-                    <>
-                      {canApprove(qt.approvalStatus, level) && (
-                        <button
-                          className="flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-                          onClick={() => approveQuotation(qt)}
-                        >
-                          <FaCheckCircle /> Approve
-                        </button>
-                      )}
+                    {canEditDelete(qt.approvalStatus) && (
+                      <>
+                        {/* ปุ่ม Approve */}
+                        {canApprove(qt.approvalStatus, level) && (
+                          <button
+                            className="flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                            onClick={() => approveQuotation(qt)}
+                          >
+                            <FaCheckCircle /> Approve
+                          </button>
+                        )}
 
-                      {canReject(qt.approvalStatus, level) && (
-                        <button
-                          className="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                          onClick={() => openModal("reject", qt)}
-                        >
-                          <FaTimesCircle /> Reject
-                        </button>
-                      )}
+                        {/* ปุ่ม Reject */}
+                        {canReject(qt.approvalStatus, level) && (
+                          <button
+                            className="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                            onClick={() => openModal("reject", qt)}
+                          >
+                            <FaTimesCircle /> Reject
+                          </button>
+                        )}
 
-                      {canCancel(qt.approvalStatus, level) && (
-                        <button
-                          className="flex items-center gap-1 bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
-                          onClick={() => openModal("cancel", qt)}
-                        >
-                          <FaBan /> Cancel
-                        </button>
-                      )}
-                    </>
-                  )}
+                        {/* ปุ่ม Cancel */}
+                        {canCancel(qt.approvalStatus, level) && (
+                          <button
+                            className="flex items-center gap-1 bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                            onClick={() => openModal("cancel", qt)}
+                          >
+                            <FaBan /> Cancel
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))

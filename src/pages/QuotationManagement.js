@@ -136,7 +136,7 @@ const QuotationManagement = () => {
                     >
                       <FaEye className="mr-2" /> View
                     </Link>
-
+                    {/* ซ่อนปุ่ม Edit และ Delete หากเอกสารถูก Approved หรือ Canceled */}
                     {canEditDelete(q.approvalStatus) && (
                       <>
                         <button

@@ -28,8 +28,9 @@ export const canCancel = (approvalStatus, userLevel) => {
 
 /**
  * ✅ ฟังก์ชันตรวจสอบว่าแสดงปุ่ม Edit และ Delete ได้หรือไม่
- * - ซ่อนปุ่ม Edit และ Delete ถ้า approvalStatus เป็น "Canceled"
+ * - ซ่อนปุ่ม Edit และ Delete ถ้า approvalStatus เป็น "Canceled" หรือ "Approved"
  */
 export const canEditDelete = (approvalStatus) => {
-  return approvalStatus !== "Canceled"; // ถ้า Canceled จะ return false -> ซ่อนปุ่ม
-};
+    return approvalStatus !== "Canceled" && approvalStatus !== "Approved";
+  };
+  
