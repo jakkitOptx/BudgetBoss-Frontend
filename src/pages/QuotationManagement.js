@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import { apiURL } from "../config/config";
+import { canEditDelete } from "../utils/buttonVisibility";
 
 const QuotationManagement = () => {
   const [quotations, setQuotations] = useState([]);
@@ -10,15 +11,12 @@ const QuotationManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  // ดึงข้อมูลจาก API
   useEffect(() => {
     const fetchQuotations = async () => {
       try {
-        const token = localStorage.getItem("token"); // ดึง Token จาก localStorage
+        const token = localStorage.getItem("token");
         const response = await axios.get(`${apiURL}quotations`, {
-          headers: {
-            Authorization: `Bearer ${token}`, // ส่ง Token ใน Header
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         setQuotations(response.data);
         setLoading(false);
@@ -31,15 +29,12 @@ const QuotationManagement = () => {
     fetchQuotations();
   }, []);
 
-  // ฟังก์ชันลบ Quotation
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this quotation?")) {
       try {
         const token = localStorage.getItem("token");
         await axios.delete(`${apiURL}quotations/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         setQuotations((prev) => prev.filter((q) => q._id !== id));
         alert("Quotation deleted successfully.");
@@ -50,7 +45,6 @@ const QuotationManagement = () => {
     }
   };
 
-  // กรองรายการตามคำค้นหา
   const filteredQuotations = quotations.filter((q) => {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
     return (
@@ -64,7 +58,6 @@ const QuotationManagement = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Quotation Management</h1>
 
-      {/* เพิ่มปุ่มสร้าง Quotation */}
       <div className="mb-4 flex justify-between items-center">
         <input
           type="text"
@@ -80,7 +73,6 @@ const QuotationManagement = () => {
           + Create Quotation
         </button>
       </div>
-
       {/* ตารางแสดง Quotation */}
       <div className="bg-white shadow rounded p-4">
         <h2 className="text-lg font-semibold mb-4">Quotations</h2>
@@ -138,7 +130,6 @@ const QuotationManagement = () => {
                     </span>
                   </td>
                   <td className="py-2 flex space-x-2">
-                    {/* ปุ่ม View */}
                     <Link
                       to={`/quotations/${q._id}`}
                       className="flex items-center bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition duration-200"
@@ -146,21 +137,23 @@ const QuotationManagement = () => {
                       <FaEye className="mr-2" /> View
                     </Link>
 
-                    {/* ปุ่ม Edit */}
-                    <button
-                      onClick={() => navigate(`/quotations/edit/${q._id}`)}
-                      className="flex items-center bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition duration-200"
-                    >
-                      <FaEdit className="mr-2" /> Edit
-                    </button>
+                    {canEditDelete(q.approvalStatus) && (
+                      <>
+                        <button
+                          onClick={() => navigate(`/quotations/edit/${q._id}`)}
+                          className="flex items-center bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition duration-200"
+                        >
+                          <FaEdit className="mr-2" /> Edit
+                        </button>
 
-                    {/* ปุ่ม Delete */}
-                    <button
-                      onClick={() => handleDelete(q._id)}
-                      className="flex items-center bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition duration-200"
-                    >
-                      <FaTrash className="mr-2" /> Delete
-                    </button>
+                        <button
+                          onClick={() => handleDelete(q._id)}
+                          className="flex items-center bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition duration-200"
+                        >
+                          <FaTrash className="mr-2" /> Delete
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}

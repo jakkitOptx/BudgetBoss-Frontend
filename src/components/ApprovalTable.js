@@ -5,6 +5,12 @@ import ApprovalStatusBadge from "./ApprovalStatusBadge";
 import ApprovalActionModal from "./ApprovalActionModal"; // ✅ Popup กรอกเหตุผล
 import axios from "axios";
 import { apiURL } from "../config/config";
+import {
+  canApprove,
+  canReject,
+  canCancel,
+  canEditDelete,
+} from "../utils/buttonVisibility";
 
 const ApprovalTable = ({ quotations }) => {
   const navigate = useNavigate();
@@ -19,6 +25,8 @@ const ApprovalTable = ({ quotations }) => {
     const user = JSON.parse(localStorage.getItem("user"));
     return { email: user?.username || "", level: user?.level || 0 };
   };
+
+  const { level } = getUserData(); // ✅ ดึง level ของผู้ใช้
 
   // ✅ เปิด Popup และกำหนดค่าที่เกี่ยวข้อง
   const openModal = (actionType, qt) => {
@@ -143,7 +151,7 @@ const ApprovalTable = ({ quotations }) => {
                 <td className="p-2 border text-center">
                   <ApprovalStatusBadge status={qt.approvalStatus} />
                 </td>
-                <td className="p-2 border text-center flex gap-2 justify-center">
+                <td className="p-2 border text-center flex flex-wrap gap-2 justify-center">
                   <button
                     className="flex items-center gap-1 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                     onClick={() => navigate(`/quotation-details/${qt._id}`)}
@@ -151,26 +159,36 @@ const ApprovalTable = ({ quotations }) => {
                     <FaEye /> View
                   </button>
 
-                  <button
-                    className="flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-                    onClick={() => approveQuotation(qt)}
-                  >
-                    <FaCheckCircle /> Approve
-                  </button>
+                  {canEditDelete(qt.approvalStatus) && (
+                    <>
+                      {canApprove(qt.approvalStatus, level) && (
+                        <button
+                          className="flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                          onClick={() => approveQuotation(qt)}
+                        >
+                          <FaCheckCircle /> Approve
+                        </button>
+                      )}
 
-                  <button
-                    className="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                    onClick={() => openModal("reject", qt)}
-                  >
-                    <FaTimesCircle /> Reject
-                  </button>
+                      {canReject(qt.approvalStatus, level) && (
+                        <button
+                          className="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                          onClick={() => openModal("reject", qt)}
+                        >
+                          <FaTimesCircle /> Reject
+                        </button>
+                      )}
 
-                  <button
-                    className="flex items-center gap-1 bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
-                    onClick={() => openModal("cancel", qt)}
-                  >
-                    <FaBan /> Cancel
-                  </button>
+                      {canCancel(qt.approvalStatus, level) && (
+                        <button
+                          className="flex items-center gap-1 bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                          onClick={() => openModal("cancel", qt)}
+                        >
+                          <FaBan /> Cancel
+                        </button>
+                      )}
+                    </>
+                  )}
                 </td>
               </tr>
             ))
