@@ -38,15 +38,19 @@ const ApprovalFlowHorizontal = ({ approvalHierarchy }) => {
             {step.approver}
           </span>
 
-          {/* Date หรือ Pending */}
-          <span className="text-gray-500 text-xs">
-            {step.date
-              ? new Date(step.date).toLocaleDateString("en-US", {
-                  day: "numeric",
-                  month: "short",
-                })
-              : "Pending"}
-          </span>
+          {/* Status */}
+          <span className="text-gray-600 text-xs font-semibold">{step.status}</span>
+
+          {/* Date - แสดงเป็น วัน เดือน ปี (เช่น 6 กุมภาพันธ์ 2025) */}
+          {step.approvedAt && (
+            <span className="text-gray-500 text-xs">
+              {new Date(step.approvedAt).toLocaleDateString("th-TH", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </span>
+          )}
         </div>
       ))}
     </div>
