@@ -4,10 +4,10 @@ import axios from "axios";
 import CreateQuotationForm from "../components/CreateQuotationForm";
 import ItemsForm from "../components/ItemsForm";
 import QuotationPreview from "../components/QuotationPreview";
+import ApprovalFlowHorizontal from "../components/ApprovalFlowHorizontal";
 import { pdf } from "@react-pdf/renderer"; // สำหรับการสร้าง Blob
 import bankAccounts from "../data/bankAccounts.json"; // โหลดข้อมูลธนาคาร
-import { apiURL } from "../config/config"
-
+import { apiURL } from "../config/config";
 
 const EditQuotation = () => {
   const { id } = useParams();
@@ -48,15 +48,12 @@ const EditQuotation = () => {
     const fetchQuotation = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(
-          `${apiURL}quotations/${id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-  
+        const response = await axios.get(`${apiURL}quotations/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
         const data = response.data;
-  
+
         const formatDate = (isoDate) => (isoDate ? isoDate.split("T")[0] : "");
         setQuotationData({
           ...data,
@@ -69,18 +66,16 @@ const EditQuotation = () => {
           totalBeforeFee: data.totalBeforeFee || 0,
           netAmount: data.netAmount || 0,
         });
-  
+
         setLoading(false);
       } catch (err) {
         console.error("Error fetching quotation:", err);
         setLoading(false);
       }
     };
-  
+
     fetchQuotation();
   }, [id]);
-  
-  
 
   // คำนวณ Total และ Net Amount
   useEffect(() => {
@@ -89,7 +84,9 @@ const EditQuotation = () => {
       0
     );
     const netAmount =
-      totalBeforeFee - quotationData.discount + totalBeforeFee * (quotationData.fee / 100);
+      totalBeforeFee -
+      quotationData.discount +
+      totalBeforeFee * (quotationData.fee / 100);
 
     setQuotationData((prev) => ({
       ...prev,
@@ -111,10 +108,7 @@ const EditQuotation = () => {
     const calculatedAmount = item.unit * parseFloat(item.unitPrice);
     setQuotationData((prev) => ({
       ...prev,
-      items: [
-        ...prev.items,
-        { ...item, amount: calculatedAmount || 0 },
-      ],
+      items: [...prev.items, { ...item, amount: calculatedAmount || 0 }],
     }));
     setItem({ description: "", unit: 1, unitPrice: "" });
   };
@@ -127,7 +121,8 @@ const EditQuotation = () => {
   };
 
   const updateItem = (index, updatedItem) => {
-    const calculatedAmount = updatedItem.unit * parseFloat(updatedItem.unitPrice || 0);
+    const calculatedAmount =
+      updatedItem.unit * parseFloat(updatedItem.unitPrice || 0);
     setQuotationData((prev) => ({
       ...prev,
       items: prev.items.map((itm, i) =>
@@ -149,7 +144,7 @@ const EditQuotation = () => {
     e.preventDefault();
     const toISOString = (dateString) =>
       dateString ? new Date(dateString).toISOString() : null;
-  
+
     const updatedQuotationData = {
       ...quotationData,
       documentDate: toISOString(quotationData.documentDate),
@@ -160,30 +155,29 @@ const EditQuotation = () => {
         amount: item.unit * parseFloat(item.unitPrice || 0),
       })),
     };
-  
+
     try {
       const token = localStorage.getItem("token");
-  
+
       // 1. **อัปเดตข้อมูล Quotation**
-      await axios.patch(
-        `${apiURL}quotations/${id}`,
-        updatedQuotationData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-  
+      await axios.patch(`${apiURL}quotations/${id}`, updatedQuotationData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       // 2. **Reset approvalHierarchy เมื่อ approvalStatus เป็น Rejected และ user level = 1**
       const user = JSON.parse(localStorage.getItem("user"));
       if (quotationData.approvalStatus === "Rejected" && user.level === 1) {
         if (quotationData.approvalHierarchy?.length > 0) {
           const approvalId = quotationData.approvalHierarchy[0]._id;
-          const newApprovalFlow = quotationData.approvalHierarchy[0].approvalHierarchy.map(level => ({
-            level: level.level,
-            approver: level.approver,
-            status: "Pending"
-          }));
-  
+          const newApprovalFlow =
+            quotationData.approvalHierarchy[0].approvalHierarchy.map(
+              (level) => ({
+                level: level.level,
+                approver: level.approver,
+                status: "Pending",
+              })
+            );
+
           // **ยิง API ไป reset flow approvalHierarchy**
           await axios.patch(
             `${apiURL}approvals/${approvalId}/reset`,
@@ -194,7 +188,7 @@ const EditQuotation = () => {
           );
         }
       }
-  
+
       alert("Quotation updated successfully!");
       navigate("/quotations");
     } catch (err) {
@@ -204,32 +198,38 @@ const EditQuotation = () => {
   };
 
   const handlePreview = async () => {
-    console.log("quotationData Edit => " , quotationData)
+    console.log("quotationData Edit => ", quotationData);
     try {
       const user = JSON.parse(localStorage.getItem("user")) || {};
       const company = user.company || "";
       const bankInfo = bankAccounts.companies[company] || {};
-  
+
       const totalBeforeFee = quotationData.items.reduce(
         (sum, itm) => sum + (itm.unit || 0) * (parseFloat(itm.unitPrice) || 0),
         0
       );
       const feeAmount = (totalBeforeFee * (quotationData.fee / 100)).toFixed(2);
       const discount = quotationData.discount || 0;
-      const amountBeforeTax = (totalBeforeFee + parseFloat(feeAmount) - discount).toFixed(2);
+      const amountBeforeTax = (
+        totalBeforeFee +
+        parseFloat(feeAmount) -
+        discount
+      ).toFixed(2);
       const vat = (amountBeforeTax * 0.07).toFixed(2);
-      const netAmount = (parseFloat(amountBeforeTax) + parseFloat(vat)).toFixed(2);
-  
+      const netAmount = (parseFloat(amountBeforeTax) + parseFloat(vat)).toFixed(
+        2
+      );
+
       if (!quotationData.clientId) {
         alert("Please select a client before previewing.");
         return;
       }
-  
+
       const clientResponse = await axios.get(
         `${apiURL}clients/${quotationData.clientId}`
       );
       const clientDetails = clientResponse.data;
-  
+
       const updatedQuotationData = {
         ...quotationData,
         totalBeforeFee: parseFloat(totalBeforeFee.toFixed(2)),
@@ -239,9 +239,12 @@ const EditQuotation = () => {
         clientDetails, // รวม clientDetails
       };
       const blob = await pdf(
-        <QuotationPreview quotationData={updatedQuotationData} bankInfo={bankInfo} />
+        <QuotationPreview
+          quotationData={updatedQuotationData}
+          bankInfo={bankInfo}
+        />
       ).toBlob();
-  
+
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
     } catch (error) {
@@ -249,34 +252,42 @@ const EditQuotation = () => {
       alert("Failed to generate preview.");
     }
   };
-  
 
   const handleClientChange = (clientId, clientName) => {
     if (!clientId || !clientName) {
       console.error("Invalid client selection");
       return;
     }
-  
+
     setQuotationData((prev) => ({
       ...prev,
       clientId, // อัปเดต clientId
       client: clientName, // อัปเดต client name
     }));
   };
-  
-  
-  if (loading) return <p className="text-center mt-4 text-gray-500">Loading...</p>;
+
+  if (loading)
+    return <p className="text-center mt-4 text-gray-500">Loading...</p>;
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Edit Quotation</h1>
+      {/* ✅ Approval Flow Section */}
+      <div className="bg-white shadow rounded p-6 mb-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          Approval Flow
+        </h2>
+        <ApprovalFlowHorizontal
+          approvalHierarchy={quotationData.approvalHierarchy || []}
+        />
+      </div>
       <form onSubmit={handleUpdate} className="bg-white shadow rounded p-6">
         <CreateQuotationForm
           quotationData={quotationData}
           handleChange={handleChange}
           setQuotationData={setQuotationData}
           handleClientChange={handleClientChange}
-          />
+        />
         <ItemsForm
           items={quotationData.items}
           item={item}
