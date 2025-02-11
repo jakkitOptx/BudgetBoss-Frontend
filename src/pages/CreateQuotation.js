@@ -131,25 +131,6 @@ const CreateQuotation = () => {
     }
   };
 
-  // // open on master
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     await axios.post(`${apiURL}quotations`, quotationData, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-  //     alert("Quotation created successfully!");
-  //     navigate("/quotations");
-  //   } catch (error) {
-  //     console.error("Error creating quotation:", error);
-  //     alert("Failed to create quotation.");
-  //   }
-  // };
-  
-
   const handlePreview = async () => {
     console.log("quotationData Create ==>", quotationData);
 

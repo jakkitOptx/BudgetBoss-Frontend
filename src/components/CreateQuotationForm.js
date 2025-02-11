@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { apiURL } from "../config/config"
+import { apiURL } from "../config/config";
+import { format } from "date-fns"; // ใช้ date-fns ช่วยจัดรูปแบบวันที่
 
 const CreateQuotationForm = ({
   quotationData,
@@ -27,6 +28,40 @@ const CreateQuotationForm = ({
 
     fetchClients();
   }, []);
+
+  // ✅ ฟังก์ชันช่วยแปลงวันที่เป็น format ที่ต้องการ
+  const formatPeriod = (startDate, endDate) => {
+    if (!startDate || !endDate) return ""; // ถ้าไม่มีค่า ให้ return ค่าว่าง
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // ตรวจสอบว่าอยู่ในเดือนเดียวกันหรือไม่
+    const sameMonth =
+      start.getMonth() === end.getMonth() &&
+      start.getFullYear() === end.getFullYear();
+
+    if (sameMonth) {
+      return format(start, "MMM yyyy"); // Ex: "Jan 2024"
+    } else {
+      return `${format(start, "dd MMM yyyy")} - ${format(end, "dd MMM yyyy")}`; // Ex: "15 Jan 2024 - 30 Feb 2024"
+    }
+  };
+
+  // ห่อ setQuotationData ด้วย useCallback
+  const updateQuotationData = useCallback(
+    (newData) => {
+      setQuotationData((prev) => ({ ...prev, ...newData }));
+    },
+    [setQuotationData]
+  );
+
+  // ✅ ใช้ใน useEffect
+  useEffect(() => {
+    updateQuotationData({
+      period: formatPeriod(quotationData.startDate, quotationData.endDate),
+    });
+  }, [quotationData.startDate, quotationData.endDate, updateQuotationData]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -126,17 +161,15 @@ const CreateQuotationForm = ({
         />
       </div>
 
-      {/* Period */}
+      {/* Period (Disabled) */}
       <div>
         <label className="block mb-1 text-gray-600">Period</label>
         <input
           type="text"
           name="period"
-          placeholder="e.g., NOV 2024 - DEC 2024"
           value={quotationData.period}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border rounded"
-          required
+          className="w-full px-4 py-2 border rounded bg-gray-100"
+          disabled
         />
       </div>
 
