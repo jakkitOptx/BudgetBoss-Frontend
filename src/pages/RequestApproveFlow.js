@@ -1,56 +1,89 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { apiURL } from "../config/config"; // ใช้ API URL จาก Config
+import { apiURL } from "../config/config";
 
 const RequestApproveFlow = () => {
   const navigate = useNavigate();
   const { quotationId } = useParams(); // รับ ID ของใบเสนอราคาที่พึ่งสร้าง
-  const [flowDetails, setFlowDetails] = useState(null); // เก็บรายละเอียดของ Flow
-  const [loading, setLoading] = useState(true); // สถานะโหลดข้อมูล
-  const [submitting, setSubmitting] = useState(false); // สถานะกำลังส่งข้อมูล
-  const [userFlowId, setUserFlowId] = useState(null); // เก็บ Flow ID ของผู้ใช้
+  const [flowDetails, setFlowDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [userFlowId, setUserFlowId] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const isDeleted = useRef(false); // ✅ ใช้ป้องกันการลบซ้ำ
+
+  // ✅ ฟังก์ชันลบใบ Quotation ล่าสุด
+  const deleteLatestQuotation = useCallback(async () => {
+    if (!quotationId || isDeleted.current) return; // หยุดถ้า Quotation ถูกลบไปแล้ว
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${apiURL}quotations/${quotationId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log(`Deleted quotation ID: ${quotationId}`);
+      isDeleted.current = true; // ✅ ตั้งค่าว่าใบนี้ถูกลบแล้ว
+    } catch (error) {
+      console.error("Error deleting latest quotation:", error);
+    }
+  }, [quotationId]);
 
   // ✅ ดึงค่า Flow ID จาก LocalStorage
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser && storedUser.flow) {
+    if (storedUser?.flow) {
       setUserFlowId(storedUser.flow);
     } else {
-      setLoading(false); // ❌ ไม่มี Flow ให้หยุดโหลดเลย
-    }
-  }, []);
+      setLoading(false);
+      setErrorMessage("ไม่พบ Flow ที่เกี่ยวข้องกับบัญชีของคุณ กรุณาติดต่อ Admin ที่ jakkit@optx.co.th");
 
-  // ✅ ดึงรายละเอียดของ Flow ตาม Flow ID ที่ได้จาก LocalStorage
+      // ✅ ลบ Quotation เพียงครั้งเดียว
+      if (!isDeleted.current) {
+        deleteLatestQuotation();
+      }
+    }
+  }, [deleteLatestQuotation]);
+
+  // ✅ ดึงรายละเอียดของ Flow เฉพาะเมื่อมี userFlowId
   useEffect(() => {
-    if (!userFlowId) return; // ❌ ถ้าไม่มี userFlowId หยุดทำงานทันที
+    if (!userFlowId || isDeleted.current) return;
 
     const fetchFlowDetails = async () => {
       try {
         const response = await axios.get(`${apiURL}approve-flows/${userFlowId}`);
-        console.log("Fetched Flow Details:", response.data); // Debug Response
+        console.log("Fetched Flow Details:", response.data);
+
+        if (!response.data.flow) {
+          throw new Error("Flow data is empty");
+        }
         setFlowDetails(response.data.flow);
       } catch (error) {
         console.error("Error fetching flow details:", error);
         setFlowDetails(null);
+        setErrorMessage("ไม่พบ Flow ที่เกี่ยวข้องกับบัญชีของคุณ กรุณาติดต่อ Admin ที่ jakkit@optx.co.th");
+
+        // ✅ ลบ Quotation เพียงครั้งเดียว
+        if (!isDeleted.current) {
+          deleteLatestQuotation();
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchFlowDetails();
-  }, [userFlowId]);
+  }, [userFlowId, deleteLatestQuotation]);
 
   // ✅ Handle การยืนยัน Flow และส่งไปยัง `/api/approvals`
   const handleConfirm = async () => {
     if (!userFlowId) {
-      alert("ไม่พบ Flow ที่เกี่ยวข้อง กรุณาตรวจสอบโปรไฟล์ของคุณ");
+      alert("ไม่พบ Flow ที่เกี่ยวข้อง กรุณาติดต่อ Admin ที่ jakkit@optx.co.th");
       return;
     }
 
     setSubmitting(true);
     try {
-      const token = localStorage.getItem("token"); // ดึง Token จาก LocalStorage
+      const token = localStorage.getItem("token");
 
       // คัดเฉพาะ Level 2 ขึ้นไป
       const approvalHierarchy = flowDetails?.approvalHierarchy
@@ -66,17 +99,17 @@ const RequestApproveFlow = () => {
         approvalHierarchy,
       };
 
-      console.log("Submitting Approval Payload:", payload); // Debug Payload
+      console.log("Submitting Approval Payload:", payload);
 
       await axios.post(`${apiURL}approvals`, payload, {
         headers: {
-          Authorization: `Bearer ${token}`, // ✅ ส่ง Token ไปใน Headers
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
       alert("Approve Flow assigned successfully!");
-      navigate("/quotations"); // กลับไปหน้ารายการ Quotation
+      navigate("/quotations");
     } catch (error) {
       console.error("Error assigning approve flow:", error);
       alert("Failed to assign approve flow.");
@@ -91,8 +124,10 @@ const RequestApproveFlow = () => {
       <div className="bg-white shadow rounded p-6">
         {loading ? (
           <p className="text-gray-600">Loading approve flow details...</p>
-        ) : !userFlowId ? ( // ❌ ถ้าไม่มี userFlowId แสดงข้อความ Error
-          <p className="text-red-500">ไม่พบ Flow ที่เกี่ยวข้องกับบัญชีของคุณ</p>
+        ) : errorMessage ? (
+          <div className="p-4 border border-red-400 bg-red-100 text-red-700 rounded">
+            {errorMessage}
+          </div>
         ) : flowDetails ? (
           <>
             <label className="block font-medium text-gray-700 mb-2">
