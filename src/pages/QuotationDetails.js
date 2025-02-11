@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import { pdf } from "@react-pdf/renderer";
@@ -59,6 +59,7 @@ const handleDownloadPDF = async (quotation, clientDetails) => {
 
 const QuotationDetails = () => {
   const { id } = useParams(); // Get `id` from URL Parameter
+  const navigate = useNavigate(); // ใช้สำหรับ Redirect
   const [quotation, setQuotation] = useState(null); // Quotation data
   const [clientDetails, setClientDetails] = useState(null); // Client details
   const [loading, setLoading] = useState(true); // Loading status
@@ -75,8 +76,6 @@ const QuotationDetails = () => {
         });
 
         const data = response.data;
-        // console.log("data quotations QuotationDetails ==>", data);
-
         setQuotation(data);
 
         // Fetch client details
@@ -93,6 +92,12 @@ const QuotationDetails = () => {
         }
 
         setLoading(false);
+
+        // ✅ ตรวจสอบว่า Quotation มี Approval Flow หรือไม่
+        if (!data.approvalHierarchy || data.approvalHierarchy.length === 0) {
+          console.warn("No approval flow found, redirecting...");
+          navigate(`/request-approve-flow/${id}`); // Redirect ถ้าไม่มี Flow
+        }
       } catch (error) {
         console.error("Error fetching quotation details:", error);
         setLoading(false);
@@ -100,7 +105,7 @@ const QuotationDetails = () => {
     };
 
     fetchQuotationDetails();
-  }, [id]);
+  }, [id, navigate]);
 
   // If loading
   if (loading) {

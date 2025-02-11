@@ -54,6 +54,12 @@ const EditQuotation = () => {
 
         const data = response.data;
 
+         // ✅ ถ้าไม่มี approvalHierarchy ให้ redirect ไป /request-approve-flow/:id
+         if (!data.approvalHierarchy || data.approvalHierarchy.length === 0) {
+          navigate(`/request-approve-flow/${id}`);
+          return;
+        }
+
         const formatDate = (isoDate) => (isoDate ? isoDate.split("T")[0] : "");
         setQuotationData({
           ...data,
@@ -75,7 +81,7 @@ const EditQuotation = () => {
     };
 
     fetchQuotation();
-  }, [id]);
+  },  [id, navigate]);
 
   // คำนวณ Total และ Net Amount
   useEffect(() => {
