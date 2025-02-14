@@ -8,6 +8,9 @@ import { FaFilePdf } from "react-icons/fa";
 import bankAccounts from "../data/bankAccounts.json";
 import ApprovalFlowHorizontal from "../components/ApprovalFlowHorizontal";
 import { apiURL } from "../config/config";
+import { ClipLoader } from "react-spinners"; // ✅ ใช้ react-spinners
+import { toast } from "react-toastify"; // ✅ ใช้ react-toastify
+import "react-toastify/dist/ReactToastify.css"; // ✅ Import styles
 
 const handleDownloadPDF = async (quotation, clientDetails) => {
   try {
@@ -53,7 +56,7 @@ const handleDownloadPDF = async (quotation, clientDetails) => {
     URL.revokeObjectURL(url);
   } catch (error) {
     console.error("Error generating PDF:", error);
-    alert("Failed to generate PDF.");
+    toast.error("Failed to generate PDF ❌");
   }
 };
 
@@ -70,9 +73,7 @@ const QuotationDetails = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(`${apiURL}quotations/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const data = response.data;
@@ -83,9 +84,7 @@ const QuotationDetails = () => {
           const clientResponse = await axios.get(
             `${apiURL}clients/${data.clientId._id}`,
             {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+              headers: { Authorization: `Bearer ${token}` },
             }
           );
           setClientDetails(clientResponse.data);
@@ -100,6 +99,7 @@ const QuotationDetails = () => {
         }
       } catch (error) {
         console.error("Error fetching quotation details:", error);
+        toast.error("Failed to fetch quotation details ❌");
         setLoading(false);
       }
     };
@@ -107,11 +107,10 @@ const QuotationDetails = () => {
     fetchQuotationDetails();
   }, [id, navigate]);
 
-  // If loading
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-gray-500 text-lg">Loading...</p>
+      <div className="flex justify-center items-center min-h-screen bg-white bg-opacity-80">
+        <ClipLoader color="#6366F1" loading={loading} size={60} />
       </div>
     );
   }

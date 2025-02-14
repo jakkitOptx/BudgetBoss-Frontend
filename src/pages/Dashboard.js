@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import SummaryCard from "../components/SummaryCard";
 import QuotationTable from "../components/QuotationTable";
-import { apiURL } from "../config/config"
+import { apiURL } from "../config/config";
+import { ClipLoader } from "react-spinners"; // ✅ ใช้ react-spinners
+import { toast } from "react-toastify"; // ✅ ใช้ react-toastify
+import "react-toastify/dist/ReactToastify.css"; // ✅ Import styles
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -16,25 +19,22 @@ const Dashboard = () => {
     const fetchQuotations = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(
-          `${apiURL}quotations`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${apiURL}quotations`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         const data = response.data;
-
         const pending = data.filter((q) => q.approvalStatus === "Pending").length;
 
         setQuotations(data.slice(0, 10));
         setPendingCount(pending);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching quotations:", error);
-        setLoading(false);
+        toast.error("Failed to fetch quotations ❌"); // ✅ แจ้งเตือน Error
+      } finally {
+        setLoading(false); // ✅ หยุดโหลด
       }
     };
 
@@ -65,7 +65,13 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 relative">
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 z-50">
+          <ClipLoader color="#6366F1" loading={loading} size={60} />
+        </div>
+      )}
+
       {user && (
         <h1 className="text-2xl font-bold text-gray-800 mb-4">
           Welcome back, {user.firstName}!

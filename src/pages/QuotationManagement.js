@@ -4,6 +4,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import { apiURL } from "../config/config";
 import { canEditDelete } from "../utils/buttonVisibility";
+import { ClipLoader } from "react-spinners"; // ✅ ใช้ react-spinners
+import { toast } from "react-toastify"; // ✅ ใช้ react-toastify
+import "react-toastify/dist/ReactToastify.css"; // ✅ Import styles
 
 const QuotationManagement = () => {
   const [quotations, setQuotations] = useState([]);
@@ -19,9 +22,10 @@ const QuotationManagement = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setQuotations(response.data);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching quotations:", error);
+        toast.error("Failed to fetch quotations ❌");
+      } finally {
         setLoading(false);
       }
     };
@@ -37,10 +41,10 @@ const QuotationManagement = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setQuotations((prev) => prev.filter((q) => q._id !== id));
-        alert("Quotation deleted successfully.");
+        toast.success("Quotation deleted successfully ✅");
       } catch (error) {
         console.error("Error deleting quotation:", error);
-        alert("Failed to delete quotation.");
+        toast.error("Failed to delete quotation ❌");
       }
     }
   };
@@ -55,7 +59,13 @@ const QuotationManagement = () => {
   });
 
   return (
-    <div className="p-6">
+    <div className="p-6 relative">
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 z-50">
+          <ClipLoader color="#6366F1" loading={loading} size={60} />
+        </div>
+      )}
+
       <h1 className="text-2xl font-bold mb-4">Quotation Management</h1>
 
       <div className="mb-4 flex justify-between items-center">
@@ -73,6 +83,7 @@ const QuotationManagement = () => {
           + Create Quotation
         </button>
       </div>
+
       {/* ตารางแสดง Quotation */}
       <div className="bg-white shadow rounded p-4">
         <h2 className="text-lg font-semibold mb-4">Quotations</h2>
