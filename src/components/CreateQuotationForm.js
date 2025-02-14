@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { apiURL } from "../config/config";
 import { format } from "date-fns"; // ใช้ date-fns ช่วยจัดรูปแบบวันที่
+import quotationTypes from "../data/quotationTypes.json";
 
 const CreateQuotationForm = ({
   quotationData,
@@ -11,6 +12,7 @@ const CreateQuotationForm = ({
 }) => {
   const [clients, setClients] = useState([]); // state สำหรับเก็บข้อมูลลูกค้า
   const [loadingClients, setLoadingClients] = useState(false); // state สำหรับโหลดข้อมูลลูกค้า
+  const [availableTypes, setAvailableTypes] = useState([]);
 
   // ดึงข้อมูลลูกค้าจาก API
   useEffect(() => {
@@ -27,6 +29,24 @@ const CreateQuotationForm = ({
     };
 
     fetchClients();
+  }, []);
+
+  // ดึงประเภทงานของบริษัทจาก JSON
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user")) || {};
+    const company = (user.company || "").toUpperCase(); // ✅ แปลงเป็นตัวพิมพ์ใหญ่ให้ตรงกับ JSON
+    if (company && quotationTypes.companies[company]) {
+      setAvailableTypes(
+        Object.entries(quotationTypes.companies[company]).map(
+          ([key, value]) => ({
+            label: key, // "Creative"
+            value: value, // "C"
+          })
+        )
+      );
+    } else {
+      setAvailableTypes([]);
+    }
   }, []);
 
   // ✅ ฟังก์ชันช่วยแปลงวันที่เป็น format ที่ต้องการ
@@ -201,18 +221,22 @@ const CreateQuotationForm = ({
 
       {/* Type and Fee */}
       <div className="md:col-span-2 flex gap-4">
+        {/* Type Selection */}
         <div className="flex-1">
           <label className="block mb-1 text-gray-600">Type</label>
           <select
             name="type"
-            value={quotationData.type}
+            value={quotationData.type || ""}
             onChange={handleChange}
             className="w-full px-4 py-2 border rounded"
             required
           >
-            <option value="M">M</option>
-            <option value="S">S</option>
-            <option value="W">W</option>
+            <option value="">Select Type</option>
+            {availableTypes.map(({ label, value }) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
           </select>
         </div>
         <div className="flex-1">

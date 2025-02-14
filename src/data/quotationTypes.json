@@ -1,0 +1,19 @@
+{
+    "companies": {
+      "NEON": {
+        "Creative": "C",
+        "General": "G",
+        "Kols": "K",
+        "Media": "M",
+        "Production": "P",
+        "Strategy": "S",
+        "Vertix": "V"
+      },
+      "OPTX": {
+        "Media": "M",
+        "SEO": "S",
+        "Website": "W"
+      }
+    }
+  }
+  
