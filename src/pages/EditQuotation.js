@@ -8,11 +8,13 @@ import ApprovalFlowHorizontal from "../components/ApprovalFlowHorizontal";
 import { pdf } from "@react-pdf/renderer"; // สำหรับการสร้าง Blob
 import bankAccounts from "../data/bankAccounts.json"; // โหลดข้อมูลธนาคาร
 import { apiURL } from "../config/config";
+import { ClipLoader } from "react-spinners"; // ✅ ใช้ react-spinners
+import { toast } from "react-toastify"; // ✅ ใช้ react-toastify
+import "react-toastify/dist/ReactToastify.css"; // ✅ Import styles
 
 const EditQuotation = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [quotationData, setQuotationData] = useState({
     title: "",
     client: "",
@@ -35,13 +37,9 @@ const EditQuotation = () => {
     remark: "",
   });
 
-  const [item, setItem] = useState({
-    description: "",
-    unit: 1,
-    unitPrice: "",
-  });
-
+  const [item, setItem] = useState({ description: "", unit: 1, unitPrice: "" });
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false); // ✅ Loading สำหรับบันทึกข้อมูล
 
   // โหลดข้อมูลจาก API
   useEffect(() => {
@@ -54,8 +52,8 @@ const EditQuotation = () => {
 
         const data = response.data;
 
-         // ✅ ถ้าไม่มี approvalHierarchy ให้ redirect ไป /request-approve-flow/:id
-         if (!data.approvalHierarchy || data.approvalHierarchy.length === 0) {
+        // ✅ ถ้าไม่มี approvalHierarchy ให้ redirect ไป /request-approve-flow/:id
+        if (!data.approvalHierarchy || data.approvalHierarchy.length === 0) {
           navigate(`/request-approve-flow/${id}`);
           return;
         }
@@ -63,8 +61,8 @@ const EditQuotation = () => {
         const formatDate = (isoDate) => (isoDate ? isoDate.split("T")[0] : "");
         setQuotationData({
           ...data,
-          clientId: data.clientId?._id || "", // ดึง clientId จาก API
-          client: data.clientId?.customerName || "", // ดึง client name จาก API
+          clientId: data.clientId?._id || "",
+          client: data.clientId?.customerName || "",
           documentDate: formatDate(data.documentDate),
           startDate: formatDate(data.startDate),
           endDate: formatDate(data.endDate),
@@ -76,13 +74,13 @@ const EditQuotation = () => {
         setLoading(false);
       } catch (err) {
         console.error("Error fetching quotation:", err);
+        toast.error("Failed to load quotation ❌");
         setLoading(false);
       }
     };
 
     fetchQuotation();
-  },  [id, navigate]);
-
+  }, [id, navigate]);
   // คำนวณ Total และ Net Amount
   useEffect(() => {
     const totalBeforeFee = quotationData.items.reduce(
@@ -148,6 +146,8 @@ const EditQuotation = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    setSaving(true); // ✅ เริ่มโหลดการบันทึก
+
     const toISOString = (dateString) =>
       dateString ? new Date(dateString).toISOString() : null;
 
@@ -170,6 +170,7 @@ const EditQuotation = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      toast.success("Quotation updated successfully!");
       // 2. **Reset approvalHierarchy เมื่อ approvalStatus เป็น Rejected และ user level = 1**
       const user = JSON.parse(localStorage.getItem("user"));
       if (quotationData.approvalStatus === "Rejected" && user.level === 1) {
@@ -194,15 +195,14 @@ const EditQuotation = () => {
           );
         }
       }
-
-      alert("Quotation updated successfully!");
       navigate("/quotations");
     } catch (err) {
       console.error("Error updating quotation:", err);
-      alert("Failed to update quotation.");
+      toast.error("Failed to update quotation ❌");
+    } finally {
+      setSaving(false); // ✅ หยุดโหลดการบันทึก
     }
   };
-
   const handlePreview = async () => {
     console.log("quotationData Edit => ", quotationData);
     try {
@@ -272,13 +272,17 @@ const EditQuotation = () => {
     }));
   };
 
-  if (loading)
-    return <p className="text-center mt-4 text-gray-500">Loading...</p>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-white bg-opacity-80">
+        <ClipLoader color="#6366F1" loading={loading} size={60} />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Edit Quotation</h1>
-      {/* ✅ Approval Flow Section */}
       <div className="bg-white shadow rounded p-6 mb-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
           Approval Flow
@@ -307,14 +311,16 @@ const EditQuotation = () => {
             type="button"
             onClick={handlePreview}
             className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            disabled={saving} // ✅ ปิดปุ่มขณะโหลด
           >
             Preview
           </button>
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            disabled={saving} // ✅ ปิดปุ่มขณะโหลด
           >
-            Save Changes
+            {saving ? <ClipLoader size={18} color="#ffffff" /> : "Save Changes"}
           </button>
         </div>
       </form>
