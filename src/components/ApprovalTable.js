@@ -5,6 +5,9 @@ import ApprovalStatusBadge from "./ApprovalStatusBadge";
 import ApprovalActionModal from "./ApprovalActionModal"; // ✅ Popup กรอกเหตุผล
 import axios from "axios";
 import { apiURL } from "../config/config";
+import { ClipLoader } from "react-spinners"; // ✅ ใช้ react-spinners
+import { toast } from "react-toastify"; // ✅ ใช้ react-toastify
+import "react-toastify/dist/ReactToastify.css"; // ✅ Import styles
 import {
   canApprove,
   canReject,
@@ -19,6 +22,7 @@ const ApprovalTable = ({ quotations }) => {
   const [selectedQuotation, setSelectedQuotation] = useState(null);
   const [reason, setReason] = useState("");
   const [error, setError] = useState(""); // ✅ เก็บข้อความผิดพลาด
+  const [loading, setLoading] = useState(false); // ✅ เพิ่ม state loading
 
   // ✅ ฟังก์ชันดึงข้อมูล User
   const getUserData = () => {
@@ -63,6 +67,8 @@ const ApprovalTable = ({ quotations }) => {
     }
 
     try {
+      setLoading(true); // ✅ เริ่มโหลด
+
       await axios.patch(
         `${apiURL}approvals/${approvalId}/approvers`,
         {
@@ -87,10 +93,14 @@ const ApprovalTable = ({ quotations }) => {
       }
 
       closeModal();
-      window.location.reload();
+      toast.success("Quotation status updated successfully! ✅"); // ✅ แสดง Toast แจ้งเตือน
+      setTimeout(() => window.location.reload(), 1500); // ✅ Reload หลัง 1.5 วินาที
     } catch (error) {
       console.error(`Error updating quotation:`, error);
       setError("เกิดข้อผิดพลาด ไม่สามารถอัปเดตสถานะได้");
+      toast.error("Failed to update quotation status ❌"); // ✅ แจ้งเตือน Error
+    } finally {
+      setLoading(false); // ✅ หยุดโหลด
     }
   };
 
@@ -106,6 +116,8 @@ const ApprovalTable = ({ quotations }) => {
     }
 
     try {
+      setLoading(true); // ✅ เริ่มโหลด
+
       await axios.patch(
         `${apiURL}approvals/${approvalId}/approvers`,
         {
@@ -118,15 +130,24 @@ const ApprovalTable = ({ quotations }) => {
         }
       );
 
-      window.location.reload();
+      toast.success("Quotation Approved Successfully!"); // ✅ แสดง Toast แจ้งเตือน
+      setTimeout(() => window.location.reload(), 1500); // ✅ Reload หลัง 1.5 วินาที
     } catch (error) {
       console.error(`Error approving quotation:`, error);
       setError("เกิดข้อผิดพลาด ไม่สามารถอนุมัติได้");
+      toast.error("Failed to approve quotation ❌"); // ✅ แจ้งเตือน Error
+    } finally {
+      setLoading(false); // ✅ หยุดโหลด
     }
   };
 
   return (
-    <div className="bg-white shadow rounded p-4">
+    <div className="bg-white shadow rounded p-4 relative">
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 z-50">
+          <ClipLoader color="#6366F1" loading={loading} size={60} />
+        </div>
+      )}
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-gray-200">
@@ -160,7 +181,6 @@ const ApprovalTable = ({ quotations }) => {
                     >
                       <FaEye /> View
                     </button>
-
                     {canEditDelete(qt.approvalStatus) && (
                       <>
                         {/* ปุ่ม Approve */}
@@ -168,6 +188,7 @@ const ApprovalTable = ({ quotations }) => {
                           <button
                             className="flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
                             onClick={() => approveQuotation(qt)}
+                            disabled={loading}
                           >
                             <FaCheckCircle /> Approve
                           </button>
@@ -207,7 +228,6 @@ const ApprovalTable = ({ quotations }) => {
           )}
         </tbody>
       </table>
-
       {/* ✅ Popup สำหรับกรอกเหตุผล */}
       <ApprovalActionModal
         isOpen={isModalOpen}
