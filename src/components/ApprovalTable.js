@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaCheckCircle, FaTimesCircle, FaBan } from "react-icons/fa";
 import ApprovalStatusBadge from "./ApprovalStatusBadge";
-import ApprovalActionModal from "./ApprovalActionModal"; // ✅ Popup กรอกเหตุผล
+import ApprovalActionModal from "./ApprovalActionModal";
 import axios from "axios";
 import { apiURL } from "../config/config";
-import { ClipLoader } from "react-spinners"; // ✅ ใช้ react-spinners
-import { toast } from "react-toastify"; // ✅ ใช้ react-toastify
-import "react-toastify/dist/ReactToastify.css"; // ✅ Import styles
+import { ClipLoader } from "react-spinners";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import {
   canApprove,
   canReject,
@@ -21,30 +22,27 @@ const ApprovalTable = ({ quotations }) => {
   const [selectedAction, setSelectedAction] = useState("");
   const [selectedQuotation, setSelectedQuotation] = useState(null);
   const [reason, setReason] = useState("");
-  const [error, setError] = useState(""); // ✅ เก็บข้อความผิดพลาด
-  const [loading, setLoading] = useState(false); // ✅ เพิ่ม state loading
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // ✅ ฟังก์ชันดึงข้อมูล User
   const getUserData = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     return { email: user?.username || "", level: user?.level || 0 };
   };
 
-  const { level } = getUserData(); // ✅ ดึง level ของผู้ใช้
+  const { level } = getUserData();
 
-  // ✅ เปิด Popup และกำหนดค่าที่เกี่ยวข้อง
   const openModal = (actionType, qt) => {
     setSelectedAction(actionType);
     setSelectedQuotation(qt);
-    setReason(qt.reason || ""); // ✅ กรอกเหตุผลจากข้อมูลที่มีอยู่
+    setReason(qt.reason || "");
     setIsModalOpen(true);
   };
 
-  // ✅ ปิด Popup
   const closeModal = () => {
     setIsModalOpen(false);
     setReason("");
-    setError(""); // ✅ เคลียร์ error เมื่อปิด Popup
+    setError("");
   };
 
   // ✅ ฟังก์ชันอัปเดต Status (ยิง API)
@@ -60,14 +58,13 @@ const ApprovalTable = ({ quotations }) => {
       return;
     }
 
-    // ✅ ถ้าเป็น Cancel ต้องมี reason
     if (selectedAction === "cancel" && !reason.trim()) {
       setError("กรุณากรอกเหตุผลในการยกเลิก");
       return;
     }
 
     try {
-      setLoading(true); // ✅ เริ่มโหลด
+      setLoading(true);
 
       await axios.patch(
         `${apiURL}approvals/${approvalId}/approvers`,
@@ -80,11 +77,10 @@ const ApprovalTable = ({ quotations }) => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
       // ✅ ยิง API อัปเดตเหตุผลแยกเฉพาะกรณี Reject / Cancel
       if (selectedAction === "reject" || selectedAction === "cancel") {
         await axios.patch(
-          `${apiURL}quotations/${selectedQuotation._id}/reason`, // ✅ ใช้ `selectedQuotation._id`
+          `${apiURL}quotations/${selectedQuotation._id}/reason`,
           { reason },
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -92,19 +88,17 @@ const ApprovalTable = ({ quotations }) => {
         );
       }
 
+      toast.success("Status updated successfully ✅");
       closeModal();
-      toast.success("Quotation status updated successfully! ✅"); // ✅ แสดง Toast แจ้งเตือน
       setTimeout(() => window.location.reload(), 1500); // ✅ Reload หลัง 1.5 วินาที
     } catch (error) {
       console.error(`Error updating quotation:`, error);
-      setError("เกิดข้อผิดพลาด ไม่สามารถอัปเดตสถานะได้");
-      toast.error("Failed to update quotation status ❌"); // ✅ แจ้งเตือน Error
+      toast.error("เกิดข้อผิดพลาด ไม่สามารถอัปเดตสถานะได้ ❌");
     } finally {
-      setLoading(false); // ✅ หยุดโหลด
+      // setLoading(false);
     }
   };
 
-  // ✅ ฟังก์ชันสำหรับ Approve (ไม่ต้องมีเหตุผล)
   const approveQuotation = async (qt) => {
     const { email, level } = getUserData();
     const token = localStorage.getItem("token");
@@ -116,7 +110,7 @@ const ApprovalTable = ({ quotations }) => {
     }
 
     try {
-      setLoading(true); // ✅ เริ่มโหลด
+      setLoading(true);
 
       await axios.patch(
         `${apiURL}approvals/${approvalId}/approvers`,
@@ -130,104 +124,105 @@ const ApprovalTable = ({ quotations }) => {
         }
       );
 
-      toast.success("Quotation Approved Successfully!"); // ✅ แสดง Toast แจ้งเตือน
+      toast.success("Quotation approved successfully ✅");
       setTimeout(() => window.location.reload(), 1500); // ✅ Reload หลัง 1.5 วินาที
     } catch (error) {
       console.error(`Error approving quotation:`, error);
-      setError("เกิดข้อผิดพลาด ไม่สามารถอนุมัติได้");
-      toast.error("Failed to approve quotation ❌"); // ✅ แจ้งเตือน Error
+      toast.error("เกิดข้อผิดพลาด ไม่สามารถอนุมัติได้ ❌");
     } finally {
-      setLoading(false); // ✅ หยุดโหลด
+      // setLoading(false);
     }
   };
 
   return (
-    <div className="bg-white shadow rounded p-4 relative">
+    <div className="relative">
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 z-50">
-          <ClipLoader color="#6366F1" loading={loading} size={60} />
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+          <ClipLoader color="#ffffff" size={80} />
         </div>
       )}
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="p-2 border">Run Number</th>
-            <th className="p-2 border">Title</th>
-            <th className="p-2 border">Client</th>
-            <th className="p-2 border">Date</th>
-            <th className="p-2 border">Status</th>
-            <th className="p-2 border">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {quotations.length > 0 ? (
-            quotations.map((qt) => (
-              <tr key={qt._id} className="hover:bg-gray-100">
-                <td className="p-2 border text-center">{qt.runNumber}</td>
-                <td className="p-2 border">{qt.title}</td>
-                <td className="p-2 border">{qt.client}</td>
-                <td className="p-2 border">
-                  {new Date(qt.documentDate).toLocaleDateString()}
-                </td>
-                <td className="p-2 border text-center">
-                  <ApprovalStatusBadge status={qt.approvalStatus} />
-                </td>
-                <td className="p-2 border">
-                  <div className="flex flex-wrap gap-2 justify-start">
-                    {/* ปุ่ม View */}
-                    <button
-                      className="flex items-center gap-1 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                      onClick={() => navigate(`/quotation-details/${qt._id}`)}
-                    >
-                      <FaEye /> View
-                    </button>
-                    {canEditDelete(qt.approvalStatus) && (
-                      <>
-                        {/* ปุ่ม Approve */}
-                        {canApprove(qt.approvalStatus, level) && (
-                          <button
-                            className="flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-                            onClick={() => approveQuotation(qt)}
-                            disabled={loading}
-                          >
-                            <FaCheckCircle /> Approve
-                          </button>
-                        )}
 
-                        {/* ปุ่ม Reject */}
-                        {canReject(qt.approvalStatus, level) && (
-                          <button
-                            className="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                            onClick={() => openModal("reject", qt)}
-                          >
-                            <FaTimesCircle /> Reject
-                          </button>
-                        )}
+      <div className="bg-white shadow rounded p-4">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="p-2 border">Run Number</th>
+              <th className="p-2 border">Title</th>
+              <th className="p-2 border">Client</th>
+              <th className="p-2 border">Date</th>
+              <th className="p-2 border">Status</th>
+              <th className="p-2 border">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {quotations.length > 0 ? (
+              quotations.map((qt) => (
+                <tr key={qt._id} className="hover:bg-gray-100">
+                  <td className="p-2 border text-center">{qt.runNumber}</td>
+                  <td className="p-2 border">{qt.title}</td>
+                  <td className="p-2 border">{qt.client}</td>
+                  <td className="p-2 border">
+                    {new Date(qt.documentDate).toLocaleDateString()}
+                  </td>
+                  <td className="p-2 border text-center">
+                    <ApprovalStatusBadge status={qt.approvalStatus} />
+                  </td>
+                  <td className="p-2 border">
+                    <div className="flex flex-wrap gap-2 justify-start">
+                      {/* ปุ่ม View */}
+                      <button
+                        className="flex items-center gap-1 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                        onClick={() => navigate(`/quotation-details/${qt._id}`)}
+                      >
+                        <FaEye /> View
+                      </button>
+                      {/* ปุ่ม Approve */}
+                      {canEditDelete(qt.approvalStatus) && (
+                        <>
+                          {canApprove(qt.approvalStatus, level) && (
+                            <button
+                              className="flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                              onClick={() => approveQuotation(qt)}
+                              disabled={loading}
+                            >
+                              <FaCheckCircle /> Approve
+                            </button>
+                          )}
+                          {/* ปุ่ม Reject */}
+                          {canReject(qt.approvalStatus, level) && (
+                            <button
+                              className="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                              onClick={() => openModal("reject", qt)}
+                            >
+                              <FaTimesCircle /> Reject
+                            </button>
+                          )}
+                          {/* ปุ่ม Cancel */}
 
-                        {/* ปุ่ม Cancel */}
-                        {canCancel(qt.approvalStatus, level) && (
-                          <button
-                            className="flex items-center gap-1 bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
-                            onClick={() => openModal("cancel", qt)}
-                          >
-                            <FaBan /> Cancel
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </div>
+                          {canCancel(qt.approvalStatus, level) && (
+                            <button
+                              className="flex items-center gap-1 bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                              onClick={() => openModal("cancel", qt)}
+                            >
+                              <FaBan /> Cancel
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="p-4 text-center text-gray-600">
+                  No approval requests found.
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="6" className="p-4 text-center text-gray-600">
-                No approval requests found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      </div>
       {/* ✅ Popup สำหรับกรอกเหตุผล */}
       <ApprovalActionModal
         isOpen={isModalOpen}
@@ -236,7 +231,8 @@ const ApprovalTable = ({ quotations }) => {
         actionType={selectedAction}
         reason={reason}
         setReason={setReason}
-        error={error} // ✅ ส่ง error message ไปให้ Popup
+        error={error}
+        loading={loading}
       />
     </div>
   );
